@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  BreakTimeReminderApp
 //
-//  Created by hanif hussain on 21/08/2023.
+//  Created by HH on 21/08/2023.
 //
 
 import UIKit
