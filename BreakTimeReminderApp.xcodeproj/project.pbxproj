@@ -12,7 +12,15 @@
 		67303E662A93E5F4009AF842 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E652A93E5F4009AF842 /* ViewController.swift */; };
 		67303E692A93E5F4009AF842 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 67303E672A93E5F4009AF842 /* Main.storyboard */; };
 		67303E6B2A93E5F5009AF842 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 67303E6A2A93E5F5009AF842 /* Assets.xcassets */; };
-		67303E6E2A93E5F5009AF842 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 67303E6C2A93E5F5009AF842 /* LaunchScreen.storyboard */; };
+		67303E7B2A9546B4009AF842 /* FocusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E7A2A9546B4009AF842 /* FocusViewController.swift */; };
+		67303E7D2A9546E1009AF842 /* ScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E7C2A9546E1009AF842 /* ScheduleViewController.swift */; };
+		67303E7F2A9548AB009AF842 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E7E2A9548AB009AF842 /* HomeViewController.swift */; };
+		67303E812A968ACC009AF842 /* CustomHomeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E802A968ACC009AF842 /* CustomHomeTableViewCell.swift */; };
+		67303E832A97CFC6009AF842 /* countdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E822A97CFC6009AF842 /* countdownView.swift */; };
+		67303E862A9A8E7E009AF842 /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 67303E852A9A8E7E009AF842 /* FSCalendar */; };
+		67303E8A2A9CEDFE009AF842 /* newTimerPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */; };
+		67303E8E2AA9FCA1009AF842 /* UpdateTimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */; };
+		67303E902AAB4FBB009AF842 /* jsonResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E8F2AAB4FBB009AF842 /* jsonResults.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,8 +30,15 @@
 		67303E652A93E5F4009AF842 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		67303E682A93E5F4009AF842 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		67303E6A2A93E5F5009AF842 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		67303E6D2A93E5F5009AF842 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		67303E6F2A93E5F5009AF842 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		67303E7A2A9546B4009AF842 /* FocusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusViewController.swift; sourceTree = "<group>"; };
+		67303E7C2A9546E1009AF842 /* ScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
+		67303E7E2A9548AB009AF842 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		67303E802A968ACC009AF842 /* CustomHomeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHomeTableViewCell.swift; sourceTree = "<group>"; };
+		67303E822A97CFC6009AF842 /* countdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = countdownView.swift; sourceTree = "<group>"; };
+		67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = newTimerPopupView.swift; sourceTree = "<group>"; };
+		67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTimerViewController.swift; sourceTree = "<group>"; };
+		67303E8F2AAB4FBB009AF842 /* jsonResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jsonResults.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67303E862A9A8E7E009AF842 /* FSCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,15 +72,46 @@
 		67303E602A93E5F4009AF842 /* BreakTimeReminderApp */ = {
 			isa = PBXGroup;
 			children = (
+				67303E772A952F14009AF842 /* ViewModel */,
+				67303E762A952F06009AF842 /* Model */,
+				67303E752A952EF2009AF842 /* Views */,
 				67303E612A93E5F4009AF842 /* AppDelegate.swift */,
 				67303E632A93E5F4009AF842 /* SceneDelegate.swift */,
-				67303E652A93E5F4009AF842 /* ViewController.swift */,
 				67303E672A93E5F4009AF842 /* Main.storyboard */,
 				67303E6A2A93E5F5009AF842 /* Assets.xcassets */,
-				67303E6C2A93E5F5009AF842 /* LaunchScreen.storyboard */,
 				67303E6F2A93E5F5009AF842 /* Info.plist */,
 			);
 			path = BreakTimeReminderApp;
+			sourceTree = "<group>";
+		};
+		67303E752A952EF2009AF842 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				67303E652A93E5F4009AF842 /* ViewController.swift */,
+				67303E7E2A9548AB009AF842 /* HomeViewController.swift */,
+				67303E8F2AAB4FBB009AF842 /* jsonResults.swift */,
+				67303E7A2A9546B4009AF842 /* FocusViewController.swift */,
+				67303E7C2A9546E1009AF842 /* ScheduleViewController.swift */,
+				67303E822A97CFC6009AF842 /* countdownView.swift */,
+				67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */,
+				67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		67303E762A952F06009AF842 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		67303E772A952F14009AF842 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				67303E802A968ACC009AF842 /* CustomHomeTableViewCell.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -83,6 +130,9 @@
 			dependencies = (
 			);
 			name = BreakTimeReminderApp;
+			packageProductDependencies = (
+				67303E852A9A8E7E009AF842 /* FSCalendar */,
+			);
 			productName = BreakTimeReminderApp;
 			productReference = 67303E5E2A93E5F4009AF842 /* BreakTimeReminderApp.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +161,9 @@
 				Base,
 			);
 			mainGroup = 67303E552A93E5F4009AF842;
+			packageReferences = (
+				67303E842A9A8E7E009AF842 /* XCRemoteSwiftPackageReference "FSCalendar" */,
+			);
 			productRefGroup = 67303E5F2A93E5F4009AF842 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -125,7 +178,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				67303E6E2A93E5F5009AF842 /* LaunchScreen.storyboard in Resources */,
 				67303E6B2A93E5F5009AF842 /* Assets.xcassets in Resources */,
 				67303E692A93E5F4009AF842 /* Main.storyboard in Resources */,
 			);
@@ -138,9 +190,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67303E7D2A9546E1009AF842 /* ScheduleViewController.swift in Sources */,
+				67303E812A968ACC009AF842 /* CustomHomeTableViewCell.swift in Sources */,
+				67303E832A97CFC6009AF842 /* countdownView.swift in Sources */,
 				67303E662A93E5F4009AF842 /* ViewController.swift in Sources */,
 				67303E622A93E5F4009AF842 /* AppDelegate.swift in Sources */,
+				67303E902AAB4FBB009AF842 /* jsonResults.swift in Sources */,
+				67303E7B2A9546B4009AF842 /* FocusViewController.swift in Sources */,
 				67303E642A93E5F4009AF842 /* SceneDelegate.swift in Sources */,
+				67303E7F2A9548AB009AF842 /* HomeViewController.swift in Sources */,
+				67303E8A2A9CEDFE009AF842 /* newTimerPopupView.swift in Sources */,
+				67303E8E2AA9FCA1009AF842 /* UpdateTimerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,14 +213,6 @@
 				67303E682A93E5F4009AF842 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		67303E6C2A93E5F5009AF842 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				67303E6D2A93E5F5009AF842 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -292,7 +344,7 @@
 				INFOPLIST_FILE = BreakTimeReminderApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -320,7 +372,7 @@
 				INFOPLIST_FILE = BreakTimeReminderApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -358,6 +410,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		67303E842A9A8E7E009AF842 /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		67303E852A9A8E7E009AF842 /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 67303E842A9A8E7E009AF842 /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 67303E562A93E5F4009AF842 /* Project object */;
 }
