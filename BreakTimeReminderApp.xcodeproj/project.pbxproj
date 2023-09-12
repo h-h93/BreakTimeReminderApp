@@ -21,6 +21,7 @@
 		67303E8A2A9CEDFE009AF842 /* newTimerPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */; };
 		67303E8E2AA9FCA1009AF842 /* UpdateTimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */; };
 		67303E902AAB4FBB009AF842 /* jsonResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E8F2AAB4FBB009AF842 /* jsonResults.swift */; };
+		67303E922AAF4EE7009AF842 /* CountDownViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67303E912AAF4EE7009AF842 /* CountDownViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,7 @@
 		67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = newTimerPopupView.swift; sourceTree = "<group>"; };
 		67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTimerViewController.swift; sourceTree = "<group>"; };
 		67303E8F2AAB4FBB009AF842 /* jsonResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = jsonResults.swift; sourceTree = "<group>"; };
+		67303E912AAF4EE7009AF842 /* CountDownViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountDownViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 				67303E822A97CFC6009AF842 /* countdownView.swift */,
 				67303E892A9CEDFE009AF842 /* newTimerPopupView.swift */,
 				67303E8D2AA9FCA1009AF842 /* UpdateTimerViewController.swift */,
+				67303E912AAF4EE7009AF842 /* CountDownViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -190,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67303E922AAF4EE7009AF842 /* CountDownViewController.swift in Sources */,
 				67303E7D2A9546E1009AF842 /* ScheduleViewController.swift in Sources */,
 				67303E812A968ACC009AF842 /* CustomHomeTableViewCell.swift in Sources */,
 				67303E832A97CFC6009AF842 /* countdownView.swift in Sources */,

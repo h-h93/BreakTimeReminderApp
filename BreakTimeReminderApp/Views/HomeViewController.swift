@@ -272,6 +272,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let vc = CountDownViewController()
+        // display the new timer view as a popup view
+        vc.modalTransitionStyle = .crossDissolve
+
+        self.navigationController?.pushViewController(vc, animated: true)
         
     }
     

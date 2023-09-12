@@ -176,7 +176,7 @@ class CustomHomeTableViewCell: UITableViewCell {
             repeatDay.text = "(\(result.date.formatted(date: .abbreviated, time: .omitted)))"
         }
         
-        print(result.notificationIdentifier)
+        //print(result.notificationIdentifier)
 
     }
 
