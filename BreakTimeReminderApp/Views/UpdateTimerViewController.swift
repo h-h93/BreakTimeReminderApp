@@ -15,6 +15,10 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
     // Create image attachment for our timer object
     let imageAttachment = NSTextAttachment(image: UIImage(systemName: "timer")!)
     
+    var timerToUpdate: savedTimers!
+    
+    var position = Int()
+    
     var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -175,6 +179,9 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
 
         // register for local notifications
         registerLocal()
+        
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: timerToUpdate.notificationIdentifier)
 
         
     }
@@ -433,16 +440,14 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
 //            formatter.dateFormat = "yyyy/MM/dd HH:mm"
 //            let someDateTime = formatter.date(from: "1980/02/09 22:31")
 //            timer.date = someDateTime
-            delegate.timers.append(timer)
+            delegate.updateTimer(timer: timer, position: position)
             
         } else {
           // timer will be for scheduled day only and will not repeat
             timer.date = calendar.selectedDate!
             scheduleLocalDate(date: timer.date!)
-            delegate.timers.append(timer)
+            delegate.updateTimer(timer: timer, position: position)
         }
-
-        delegate.saveDate()
         //print("timer date \(timer)")
         dismiss(animated: true)
     }
@@ -489,7 +494,6 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
     // regular repeat schedule notification
     @objc func scheduleLocal(weekday: Int) {
         let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
         
         let content = UNMutableNotificationContent()
         content.title = "\(timer.title)"

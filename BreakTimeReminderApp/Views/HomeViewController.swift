@@ -22,6 +22,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     var timers: [savedTimers] = []
     
+    var selectedRow = Int()
     
     var calendarHeightConstraint: NSLayoutConstraint!
     
@@ -125,27 +126,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
+            // set constraints for tableView
             tableView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
             tableView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor)
         ])
     }
-    
-    // orignal custom calendar view setup code 
-//    func setupCalendarView() {
-//        view.addSubview(calendarView)
-//
-//        NSLayoutConstraint.activate([
-//            calendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-//            calendarView.bottomAnchor.constraint(equalTo: tableView.topAnchor),
-//            //calendarView.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
-//            calendarView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-//            calendarView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
-//
-//        ])
-//    }
-//
     
     // setup FSCalendar
     func setupCalendar() {
@@ -177,22 +164,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
     }
     
+    // save user data
     func saveDate() {
         // convert to json data to save
-        
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(timers) {
             let defaults = UserDefaults.standard
             defaults.set(encoded, forKey: "SavedTimers")
         }
-//        do {
-//            let encodedData = try JSONEncoder().encode(timers)
-//            UserDefaults.standard.set(encodedData, forKey: "SavedTimers")
-//
-//        } catch {
-//            print(error)
-//        }
-        
         self.tableView.reloadData()
     }
     
@@ -215,7 +194,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
          let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath) as! CustomHomeTableViewCell
         
         // create tap gesture recogniser for our dotted manage timer image in the cell
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped(gesture:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped(sender:)))
+        
+        // add a tag to track which image was selected
+        cell.manageTimerImage.tag = indexPath.row
         
         // add the recogniser to our manage image timer
         cell.manageTimerImage.addGestureRecognizer(tapGesture)
@@ -275,20 +257,27 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let vc = CountDownViewController()
         // display the new timer view as a popup view
         vc.modalTransitionStyle = .crossDissolve
-
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
     
-    @objc func imageTapped(gesture: UIGestureRecognizer) {
-        if let imageView = gesture.view as? UIImageView {
-            print("image")
+    @objc func imageTapped(sender: UITapGestureRecognizer) {
+        if let imageView = sender.view as? UIImageView {
+            let updateTimerView = UpdateTimerViewController()
+            updateTimerView.delegate = self
+            selectedRow = sender.view!.tag
+            updateTimerView.timerToUpdate = timers[selectedRow]
+            updateTimerView.position = selectedRow
+            
+            updateTimerView.modalPresentationStyle = .overCurrentContext
+            updateTimerView.modalTransitionStyle = .crossDissolve
+            
+            let updateTimerNavCon = UINavigationController(rootViewController: updateTimerView)
+            
+            present(updateTimerNavCon, animated: true)
         }
     }
     @objc func addTimer() {
-//        let completeText = NSMutableAttributedString(string: "Help")
-//        var time = savedTimers(title: completeText, repeatDay: "mon, tues, day")
-//        timers.append(time)
         // create and initialise the new timer view
         let newTimerView = newTimerPopupView()
         
@@ -338,6 +327,17 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
             calendar.calendarHeaderView.reloadData()
             calendar.reloadData()
+    }
+    
+    func updateTimer(timer: savedTimers, position: Int) {
+        // convert to json data to save
+        timers[position] = timer
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(timers) {
+            let defaults = UserDefaults.standard
+            defaults.set(encoded, forKey: "SavedTimers")
+        }
+        self.tableView.reloadData()
     }
     
 }
