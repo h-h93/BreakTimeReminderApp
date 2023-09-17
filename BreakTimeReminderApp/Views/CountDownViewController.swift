@@ -8,18 +8,16 @@
 import UIKit
 
 class CountDownViewController: UIViewController {
-    var duration = 25
-    //var timer: Timer!
-    
+    var savedtimer: savedTimers!
     let timeLeftShapeLayer = CAShapeLayer()
     let bgShapeLayer = CAShapeLayer()
-    var timeLeft: TimeInterval = 1499
+    var timeLeft: TimeInterval = 1500
     var endTime: Date?
     var timeLabel =  UILabel()
     var timer = Timer()
     // here you create your basic animation object to animate the strokeEnd
     let strokeIt = CABasicAnimation(keyPath: "strokeEnd")
-    var isTimerRunning = false
+    var isTimerRunning = true
     
     let pauseButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 50, y: 550, width: 100, height: 50))
@@ -51,6 +49,9 @@ class CountDownViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // convert minutes to seconds
+        timeLeft = savedtimer.timeDuration * 60
+        
         view.backgroundColor = UIColor(white: 0.94, alpha: 1.0)
         drawBgShape()
         drawTimeLeftShape()
@@ -64,6 +65,7 @@ class CountDownViewController: UIViewController {
         // define the future end time by adding the timeLeft to now Date()
         endTime = Date().addingTimeInterval(timeLeft)
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+        
         
         drawButtons()
         
@@ -111,27 +113,46 @@ class CountDownViewController: UIViewController {
     }
     
     @objc func updateTime() {
-        isTimerRunning = true
-        if timeLeft > 0 {
-            // minus 1 second each time
-            timeLeft -= 1
-            //timeLeft = endTime?.timeIntervalSinceNow ?? 0
-            timeLabel.text = timeLeft.time
-        } else {
-            timeLabel.text = "00:00"
-            timer.invalidate()
+        if isTimerRunning == true {
+            if timeLeft > 0 {
+                // minus 1 second each time
+                timeLeft -= 1
+                //timeLeft = endTime?.timeIntervalSinceNow ?? 0
+                timeLabel.text = timeLeft.time
+            } else {
+                timeLabel.text = "00:00"
+                timer.invalidate()
+            }
         }
     }
     
    @objc func pauseTimer() {
-        timer.invalidate()
+       timer.invalidate()
        isTimerRunning = false
+       
+       // pause the timer animation
+       let pausedTime = timeLeftShapeLayer.convertTime(CACurrentMediaTime(), from: nil)
+       timeLeftShapeLayer.speed = 0
+       timeLeftShapeLayer.timeOffset = pausedTime
+       
+
     }
     
     @objc func resumeTimer() {
         if isTimerRunning == false {
             timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
             isTimerRunning = true
+            // disable animation for countdown till user selects start
+            strokeIt.speed = 1
+            
+            // resume timer animation
+            let pausedTime = timeLeftShapeLayer.timeOffset
+            timeLeftShapeLayer.speed = 1.0
+            timeLeftShapeLayer.timeOffset = 0.0
+            timeLeftShapeLayer.beginTime = 0.0
+            let timeSincePause = timeLeftShapeLayer.convertTime(CACurrentMediaTime(), from: nil) - pausedTime
+            timeLeftShapeLayer.beginTime = timeSincePause
+
         }
     }
     
