@@ -9,9 +9,11 @@ import UIKit
 
 struct savedTimers: Codable {
     var title: String!
-    var repeatDay: [Int]!
+    var repeatDay: [String]!
     var date: Date!
     var notificationIdentifier: [String]!
+    var timeDuration: TimeInterval!
+    var frequency: TimeInterval!
 }
 
 class CustomHomeTableViewCell: UITableViewCell {
@@ -57,7 +59,7 @@ class CustomHomeTableViewCell: UITableViewCell {
         
     }()
     
-    var repeatDay: UILabel = {
+    var repeatDayLabel: UILabel = {
        let day = UILabel()
         day.adjustsFontSizeToFitWidth = true
         day.translatesAutoresizingMaskIntoConstraints = false
@@ -86,7 +88,7 @@ class CustomHomeTableViewCell: UITableViewCell {
         addSubview(backgroundCard)
         addSubview(title)
         addSubview(start)
-        addSubview(repeatDay)
+        addSubview(repeatDayLabel)
         addSubview(manageTimerImage)
         backgroundCardConstraints()
         titleConstraints()
@@ -119,9 +121,9 @@ class CustomHomeTableViewCell: UITableViewCell {
     
     fileprivate func repeatDayConstraints() {
         NSLayoutConstraint.activate([
-            repeatDay.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
-            repeatDay.heightAnchor.constraint(equalToConstant: 25),
-            repeatDay.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 21)
+            repeatDayLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
+            repeatDayLabel.heightAnchor.constraint(equalToConstant: 25),
+            repeatDayLabel.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 21)
         ])
     }
     
@@ -171,12 +173,14 @@ class CustomHomeTableViewCell: UITableViewCell {
         title.attributedText = completeText
         start.text = "Start"
         if let RepeatDay = result.repeatDay {
-            repeatDay.text = "\(RepeatDay)"
+            // declare a empty string first before loping and += to text to avoid null error
+            repeatDayLabel.text = ""
+            for i in RepeatDay {
+                repeatDayLabel.text! += " \(i)"
+            }
         } else {
-            repeatDay.text = "(\(result.date.formatted(date: .abbreviated, time: .omitted)))"
+            repeatDayLabel.text = result.date.formatted(date: .abbreviated, time: .omitted)
         }
-        
-        //print(result.notificationIdentifier)
 
     }
 

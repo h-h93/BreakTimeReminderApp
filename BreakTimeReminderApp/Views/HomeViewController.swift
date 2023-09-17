@@ -100,6 +100,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         loadData()
         
         setupCalendar()
@@ -193,6 +194,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
          let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath) as! CustomHomeTableViewCell
         
+        //disable cell selection highlight
+        cell.selectionStyle = .none
+        
         // create tap gesture recogniser for our dotted manage timer image in the cell
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped(sender:)))
         
@@ -255,6 +259,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = CountDownViewController()
+        vc.savedtimer = timers[indexPath.row]
         // display the new timer view as a popup view
         vc.modalTransitionStyle = .crossDissolve
         self.navigationController?.pushViewController(vc, animated: true)
