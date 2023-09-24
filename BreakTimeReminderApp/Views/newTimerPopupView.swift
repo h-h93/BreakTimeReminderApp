@@ -13,44 +13,6 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     weak var delegate: HomeViewController!
     
-    var durationPicker: UIPickerView = {
-        let picker = UIPickerView()
-        //picker.frame = CGRect(x: 0, y: 0, width: 50, height: 100)
-        picker.backgroundColor = .white
-        picker.layer.cornerRadius = 8
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        return picker
-    }()
-    
-    let durationDataSource = ["5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"]
-    
-    let durationLabel: UILabel = {
-        let durationLabel = UILabel()
-        durationLabel.text = "Duration:"
-        durationLabel.textColor = .white
-        durationLabel.translatesAutoresizingMaskIntoConstraints = false
-        return durationLabel
-    }()
-    
-    var frequencyPicker: UIPickerView = {
-        let picker = UIPickerView()
-        //picker.frame = CGRect(x: 0, y: 0, width: 50, height: 100)
-        picker.backgroundColor = .white
-        picker.layer.cornerRadius = 8
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        return picker
-    }()
-    
-    let frequencyLabel: UILabel = {
-        let frequencyLabel = UILabel()
-        frequencyLabel.text = "Frequency:"
-        frequencyLabel.textColor = .white
-        frequencyLabel.translatesAutoresizingMaskIntoConstraints = false
-        return frequencyLabel
-    }()
-    
-    let frequencyDataSource = ["5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"]
-    
     var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -67,55 +29,22 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }()
     
     var calendarHeightConstraint: NSLayoutConstraint!
+    var calendarWidthConstraint: NSLayoutConstraint!
     
     var nameTxtField: UITextField = {
         let textfield = UITextField()
         textfield.placeholder = "Task Name"
-        textfield.backgroundColor = .systemFill
-        textfield.textColor = .white
+        textfield.backgroundColor = .white
+        textfield.textColor = .black
         textfield.borderStyle = .roundedRect
         textfield.translatesAutoresizingMaskIntoConstraints = false
         return textfield
     }()
     
-    // view to hold the calendar and show it when needed
-    let calendarView: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = 8
-        view.backgroundColor = .systemFill
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    let repeatLabel: UILabel = {
-        let repeatLabel = UILabel()
-        repeatLabel.text = "Repeat:"
-        repeatLabel.textColor = .white
-        repeatLabel.translatesAutoresizingMaskIntoConstraints = false
-        return repeatLabel
-    }()
-    
-    var repeatToggle: UISwitch = {
-        let repeatToggle = UISwitch()
-        repeatToggle.preferredStyle = .sliding
-        repeatToggle.translatesAutoresizingMaskIntoConstraints = false
-        repeatToggle.isOn = true
-        return repeatToggle
-    }()
-    
-    // view to show the days of the week buttons for repeating tasks
-    var weekdayView: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = 10
-        view.backgroundColor = .systemFill
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     // create a calendar view for when a user wishes to create a timer for specific date
     fileprivate var calendar: FSCalendar = {
         let calendar = FSCalendar()
-
+        
         calendar.translatesAutoresizingMaskIntoConstraints = false
         
         // customise look of calendar
@@ -149,7 +78,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         calendar.appearance.todaySelectionColor = .magenta
         calendar.backgroundColor = .clear
         // change the colour of the days in the calendar
-        calendar.appearance.titleDefaultColor = .white
+        calendar.appearance.titleDefaultColor = .black
         
         return calendar
     }()
@@ -160,27 +89,125 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     // hold our date and pass to timer if user selects a specific date
     var selectedDate: Date!
     
-    // Mutable string to pass to our timer object
-    var name = NSMutableAttributedString(string: "")
-    
     // create selectable buttons for user to select which day/days of the week they want to schedule a reminder for
     var dayOfWeekButtons = [UIButton]()
+    
+    let center = UNUserNotificationCenter.current()
+    
+    var durationPicker: UIPickerView = {
+        let picker = UIPickerView()
+        //picker.frame = CGRect(x: 0, y: 0, width: 50, height: 100)
+        picker.backgroundColor = .white
+        picker.layer.cornerRadius = 8
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        return picker
+    }()
+    
+    let durationDataSource = ["5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"]
+    
+    let durationLabel: UILabel = {
+        let durationLabel = UILabel()
+        durationLabel.text = "Duration:"
+        durationLabel.textColor = .black
+        durationLabel.translatesAutoresizingMaskIntoConstraints = false
+        return durationLabel
+    }()
+    
+    let repeatLabel: UILabel = {
+        let repeatLabel = UILabel()
+        repeatLabel.text = "Repeat:"
+        repeatLabel.textColor = .white
+        repeatLabel.translatesAutoresizingMaskIntoConstraints = false
+        return repeatLabel
+    }()
+    
+    var repeatToggle: UISwitch = {
+        let repeatToggle = UISwitch()
+        repeatToggle.preferredStyle = .sliding
+        repeatToggle.translatesAutoresizingMaskIntoConstraints = false
+        repeatToggle.isOn = true
+        return repeatToggle
+    }()
+    
+    let startTimerminutehour: UIDatePicker = {
+        let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: 150, height: 50))
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        datePicker.datePickerMode = .time
+        datePicker.preferredDatePickerStyle = .compact
+        datePicker.backgroundColor = .white
+        datePicker.layer.cornerRadius = 8
+        datePicker.layer.masksToBounds = true
+        return datePicker
+    }()
+    
+    let frequencyLabel: UILabel = {
+        let frequencyLabel = UILabel()
+        frequencyLabel.text = "Time:"
+        frequencyLabel.textColor = .black
+        frequencyLabel.translatesAutoresizingMaskIntoConstraints = false
+        return frequencyLabel
+    }()
+    
+    var textView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var durationView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var weekDayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var monthSelectionView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var DurationViewConstraint = [NSLayoutConstraint]()
+    var weekdayViewConstraints = [NSLayoutConstraint]()
+    var monthselectionViewConstraints = [NSLayoutConstraint]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // hide keyboard using our custom extension created at bottom of this class
+        self.hideKeyboardWhenTappedAround()
+        nameTxtField.delegate = self
+        
         durationPicker.dataSource = self
         durationPicker.delegate = self
-        frequencyPicker.dataSource = self
-        frequencyPicker.delegate = self
+        
+        calendar.dataSource = self
+        calendar.delegate = self
         
         // Semi-transparent background
         view.backgroundColor = UIColor.darkGray
- 
+        
         // if we want to modify the colour of the navgation item title we'll need to create the attributes first
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.white
-        
+            
         ]
         
         // This will change the navigation bar background color
@@ -190,7 +217,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         
         // apply attributes to title text so we can change colour
         appearance.titleTextAttributes = attributes
-    
+        
         // change navigation bar button colour
         navigationController?.navigationBar.tintColor = .red
         
@@ -198,7 +225,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-
+        
         // set nav title
         navigationItem.title = "Create"
         
@@ -208,13 +235,13 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         
         // round the corners of our ui view
         view.layer.cornerRadius = 10
-
+        
         
         repeatToggle.addTarget(self, action: #selector(repeatToggleTapped), for: .touchUpInside)
         
         setupDayOfWeekButtons()
         setupView()
-
+        
         // register for local notifications
         registerLocal()
         
@@ -229,34 +256,19 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     // number of rows in picker columns
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == durationPicker {
-            return durationDataSource.count
-        } else {
-            return frequencyDataSource.count
-        }
+        return durationDataSource.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == durationPicker {
-            return durationDataSource[row]
-        } else {
-            return frequencyDataSource[row]
-        }
+        return durationDataSource[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == durationPicker {
-            timer.timeDuration = Double(durationDataSource[row])
-        } else if pickerView == frequencyPicker {
-            timer.frequency = Double(frequencyDataSource[row])
-        }
-
+        timer.timeDuration = Double(durationDataSource[row])
     }
     
-    
-    
     func setupDayOfWeekButtons() {
-       // create ui buttons and append them to aray
+        // create ui buttons and append them to aray
         for i in 1...7 {
             var button: UIButton = {
                 let button = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
@@ -293,16 +305,27 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     func setupView() {
         scrollView.contentSize = CGSize(width: view.frame.size.width, height: 800)
         scrollView.delegate = self
-
+        
         view.addSubview(lineView)
         view.addSubview(scrollView)
+        
+        scrollView.addSubview(monthSelectionView)
+        monthSelectionView.addSubview(calendar)
+        
+        // add components to durationview
+        durationView.addSubview(durationPicker)
+        durationView.addSubview(durationLabel)
+        durationView.addSubview(startTimerminutehour)
+        durationView.addSubview(frequencyLabel)
+        
         scrollView.addSubview(nameTxtField)
-        scrollView.addSubview(weekdayView)
         scrollView.addSubview(repeatLabel)
         scrollView.addSubview(repeatToggle)
+        scrollView.addSubview(weekDayView)
+        scrollView.addSubview(durationView)
         
         for i in dayOfWeekButtons {
-            weekdayView.addSubview(i)
+            weekDayView.addSubview(i)
         }
         
         NSLayoutConstraint.activate([
@@ -326,159 +349,121 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             nameTxtField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 0.8),
             nameTxtField.heightAnchor.constraint(greaterThanOrEqualToConstant: 40),
             
-            // set constraints for weekdayView selection
-            weekdayView.topAnchor.constraint(equalTo: nameTxtField.bottomAnchor, constant: 40),
-            weekdayView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
-            weekdayView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
-            weekdayView.heightAnchor.constraint(equalToConstant: 450),
-            
             // set constraints for repeat label
-            repeatLabel.topAnchor.constraint(equalTo: weekdayView.topAnchor, constant: 10),
-            repeatLabel.leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 10),
-
+            repeatLabel.topAnchor.constraint(equalTo: nameTxtField.bottomAnchor, constant: 40),
+            repeatLabel.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
             
             // set constraints for repeat toggle
             repeatToggle.topAnchor.constraint(equalTo: repeatLabel.topAnchor, constant: -5),
             repeatToggle.leadingAnchor.constraint(equalTo: repeatLabel.trailingAnchor, constant: 10),
-            repeatToggle.trailingAnchor.constraint(equalTo: weekdayView.trailingAnchor, constant: -5),
-            
-            // set constraints for days of the week
-            dayOfWeekButtons[0].topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 25),
-            dayOfWeekButtons[0].leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 20),
-            dayOfWeekButtons[0].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[0].heightAnchor.constraint(equalToConstant: 30),
-            
-            dayOfWeekButtons[1].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[1].leadingAnchor.constraint(equalTo: dayOfWeekButtons[0].trailingAnchor, constant: 10),
-            dayOfWeekButtons[1].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[1].heightAnchor.constraint(equalToConstant: 30),
-
-            dayOfWeekButtons[2].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[2].leadingAnchor.constraint(equalTo: dayOfWeekButtons[1].trailingAnchor, constant: 10),
-            dayOfWeekButtons[2].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[2].heightAnchor.constraint(equalToConstant: 30),
-            
-            dayOfWeekButtons[3].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[3].leadingAnchor.constraint(equalTo: dayOfWeekButtons[2].trailingAnchor, constant: 10),
-            dayOfWeekButtons[3].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[3].heightAnchor.constraint(equalToConstant: 30),
-            
-            dayOfWeekButtons[4].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[4].leadingAnchor.constraint(equalTo: dayOfWeekButtons[3].trailingAnchor, constant: 10),
-            dayOfWeekButtons[4].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[4].heightAnchor.constraint(equalToConstant: 30),
-            
-            dayOfWeekButtons[5].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[5].leadingAnchor.constraint(equalTo: dayOfWeekButtons[4].trailingAnchor, constant: 10),
-            dayOfWeekButtons[5].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[5].heightAnchor.constraint(equalToConstant: 30),
-            
-            dayOfWeekButtons[6].topAnchor.constraint(equalTo: dayOfWeekButtons[0].topAnchor),
-            dayOfWeekButtons[6].leadingAnchor.constraint(equalTo: dayOfWeekButtons[5].trailingAnchor, constant: 10),
-            dayOfWeekButtons[6].widthAnchor.constraint(equalToConstant: 30),
-            dayOfWeekButtons[6].heightAnchor.constraint(equalToConstant: 30),
+            repeatToggle.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
         ])
         
-        // setup calendar view and hide it initially and set weekdayview to visible
-        setupCalendar()
-        setupWeeklyViewPicker()
-        calendarView.isHidden = true
-        weekdayView.isHidden = false
+        weekDayViewConstraints()
+        setDurationViewConstraints(view: weekDayView)
+        monthSelectionViewConstraints()
         
+        for (index, item) in dayOfWeekButtons.enumerated() {
+            
+            if item == dayOfWeekButtons[0] {
+                NSLayoutConstraint.activate([
+                    dayOfWeekButtons[0].topAnchor.constraint(equalTo: weekDayView.topAnchor, constant: 20),
+                    dayOfWeekButtons[0].leadingAnchor.constraint(equalTo: weekDayView.leadingAnchor, constant: 20),
+                    dayOfWeekButtons[0].widthAnchor.constraint(equalToConstant: 30),
+                    dayOfWeekButtons[0].heightAnchor.constraint(equalToConstant: 30),
+                ])
+            } else {
+                NSLayoutConstraint.activate([
+                item.topAnchor.constraint(equalTo: dayOfWeekButtons[index-1].topAnchor),
+                item.leadingAnchor.constraint(equalTo: dayOfWeekButtons[index-1].trailingAnchor, constant: 10),
+                item.widthAnchor.constraint(equalToConstant: 30),
+                item.heightAnchor.constraint(equalToConstant: 30),
+                ])
+            }
+            
+        }
+        // setup calendar view and hide it initially and set weekdayview to visible
+        monthSelectionView.isHidden = true
+        weekDayView.isHidden = false
     }
     
-    // setup FSCalendar
-    func setupCalendar() {
-        calendar.dataSource = self
-        calendar.delegate = self
+    func weekDayViewConstraints() {
+        weekdayViewConstraints = [
+            // set constraints for weekdayView selection
+            weekDayView.topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 20),
+            weekDayView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
+            weekDayView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
+            weekDayView.heightAnchor.constraint(equalToConstant: 65),
+        ]
         
-        scrollView.addSubview(calendarView)
-        weekdayView.isHidden = true
+        for i in weekdayViewConstraints {
+            i.isActive = true
+        }
+    }
+    
+    func setDurationViewConstraints(view: UIView) {
+        
+        // disable constraints for duration view so we can reapply them when switching between repeat view and monthly calendar view
+        for i in DurationViewConstraint {
+            i.isActive = false
+        }
+        DurationViewConstraint = [
+            // add constraints for duration view
+            durationView.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
+            durationView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
+            durationView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
+            durationView.heightAnchor.constraint(equalToConstant: 150),
+            durationView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -300),
+            
+             //add constraints for timer picker and label
+            durationLabel.topAnchor.constraint(equalTo: durationView.topAnchor, constant: 20),
+            durationLabel.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant:10),
+            
+            durationPicker.topAnchor.constraint(equalTo: durationLabel.topAnchor, constant: 25),
+            durationPicker.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant: 10),
+            durationPicker.trailingAnchor.constraint(equalTo: durationView.trailingAnchor, constant: -10),
+            durationPicker.heightAnchor.constraint(equalToConstant: 50),
+            
+            // add constraints for frequency picker and label
+            frequencyLabel.topAnchor.constraint(equalTo: durationPicker.bottomAnchor, constant: 10),
+            frequencyLabel.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant: 10),
+            
+            startTimerminutehour.topAnchor.constraint(equalTo: frequencyLabel.topAnchor, constant: 0),
+            startTimerminutehour.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant: 215),
+            startTimerminutehour.trailingAnchor.constraint(equalTo: durationView.trailingAnchor, constant: -10),
+        ]
+        
+        for i in DurationViewConstraint {
+            i.isActive = true
+        }
+    }
+    
+    func monthSelectionViewConstraints() {
         // set the frame height of our FSCalendar weekly view and activate the constraint
         calendarHeightConstraint = calendar.heightAnchor.constraint(equalToConstant: 300)
         calendarHeightConstraint?.isActive = true
         
-        NSLayoutConstraint.activate([
-            // set constraints for weekdayView selection
-            calendarView.topAnchor.constraint(equalTo: nameTxtField.bottomAnchor, constant: 80),
-            calendarView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
-            calendarView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
-            calendarView.heightAnchor.constraint(equalToConstant: 450),
- 
-        ])
+        calendarWidthConstraint = calendar.widthAnchor.constraint(equalToConstant: 305)
+        calendarWidthConstraint.isActive = true
         
-        addCalendar()
-    }
-    
-    func addCalendar() {
-        calendarView.addSubview(calendar)
-        
-        NSLayoutConstraint.activate([
-            calendar.topAnchor.constraint(equalTo: calendarView.topAnchor),
-            calendar.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor, constant: 10),
-            calendar.trailingAnchor.constraint(equalTo: calendarView.trailingAnchor, constant:  -10),
-            // we have to enable a bottom anchor constraint otherwise scrolling will not work as the scrollview is unable to correctly work out scrolling
-            //calendar.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -50)
-        
-        ])
-    }
-    
-    func setupWeeklyViewPicker() {
-        durationLabel.removeFromSuperview()
-        durationPicker.removeFromSuperview()
-        frequencyLabel.removeFromSuperview()
-        frequencyPicker.removeFromSuperview()
-        weekdayView.addSubview(durationLabel)
-        weekdayView.addSubview(durationPicker)
-        weekdayView.addSubview(frequencyLabel)
-        weekdayView.addSubview(frequencyPicker)
-        
-        NSLayoutConstraint.activate([
-            // add constraints for timer picker and label
-            durationLabel.topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 100),
-            durationLabel.leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 10),
+        monthselectionViewConstraints = [
+            // set constraints for calendar selection
+            monthSelectionView.topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 20),
+            monthSelectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
+            monthSelectionView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
+            monthSelectionView.heightAnchor.constraint(equalToConstant: 300),
             
-            durationPicker.topAnchor.constraint(equalTo: durationLabel.topAnchor, constant: 25),
-            durationPicker.leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 10),
-            durationPicker.trailingAnchor.constraint(equalTo: weekdayView.trailingAnchor, constant: -10),
-            durationPicker.heightAnchor.constraint(equalToConstant: 100),
-            
-            // add constraints for frequency picker and label
-            frequencyLabel.topAnchor.constraint(equalTo: durationLabel.bottomAnchor, constant: 150),
-            frequencyLabel.leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 10),
-            
-            frequencyPicker.topAnchor.constraint(equalTo: frequencyLabel.topAnchor, constant: 25),
-            frequencyPicker.leadingAnchor.constraint(equalTo: weekdayView.leadingAnchor, constant: 10),
-            frequencyPicker.trailingAnchor.constraint(equalTo: weekdayView.trailingAnchor, constant: -10),
-            frequencyPicker.heightAnchor.constraint(equalToConstant: 100),
-        ])
+            calendar.topAnchor.constraint(equalTo: monthSelectionView.topAnchor),
+            calendar.leadingAnchor.constraint(equalTo: monthSelectionView.leadingAnchor, constant: 5),
+        ]
+        
+        for i in monthselectionViewConstraints {
+            i.isActive = true
+        }
     }
-    
-    func setupDurationPickerForCalendarView() {
-        durationLabel.removeFromSuperview()
-        durationPicker.removeFromSuperview()
-        frequencyLabel.removeFromSuperview()
-        frequencyPicker.removeFromSuperview()
-        
-        calendarView.addSubview(durationLabel)
-        calendarView.addSubview(durationPicker)
-        
-        NSLayoutConstraint.activate([
-        // add constraints for timer picker and label
-        durationLabel.topAnchor.constraint(equalTo: repeatLabel.bottomAnchor, constant: 320),
-        durationLabel.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor, constant: 10),
-        
-        durationPicker.topAnchor.constraint(equalTo: durationLabel.topAnchor, constant: 25),
-        durationPicker.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor, constant: 10),
-        durationPicker.trailingAnchor.constraint(equalTo: calendarView.trailingAnchor, constant: -10),
-        durationPicker.heightAnchor.constraint(equalToConstant: 100),
-        
-        ])
-    }
-    
     
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-       // print(date)
+        // print(date)
         selectedDate = date
         calendar.setCurrentPage(date, animated: true)
         calendar.select(date)
@@ -494,9 +479,10 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         calendarHeightConstraint.constant = bounds.height
+        calendarWidthConstraint.constant = bounds.width
         view.layoutIfNeeded()
         
-       }
+    }
     
     // restrict date selection by dissalowing past dates from current date
     func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
@@ -511,8 +497,8 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }
     
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-            calendar.calendarHeaderView.reloadData()
-            calendar.reloadData()
+        calendar.calendarHeaderView.reloadData()
+        calendar.reloadData()
     }
     
     // disable scrolling horizontally
@@ -521,19 +507,15 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             scrollView.contentOffset.x = 0
         }
     }
-
+    
     
     @objc func doneButtonTapped() {
         guard let nameText = nameTxtField.text, !nameText.isEmpty else { return }
         
-        if timer.frequency == nil {
-            timer.frequency = 5
-        }
-        
         if timer.timeDuration == nil {
             timer.timeDuration = 5
         }
-
+        
         timer.title = nameText
         
         if repeatToggle.isOn {
@@ -588,15 +570,15 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             }
             // append the dayCount to timer array
             timer.repeatDay = days
-//            let formatter = DateFormatter()
-//            formatter.dateFormat = "yyyy/MM/dd HH:mm"
-//            let someDateTime = formatter.date(from: "1980/02/09 22:31")
-//            timer.date = someDateTime
+            timer.timeOfDay = startTimerminutehour.date
             delegate.timers.append(timer)
             
         } else {
-          // timer will be for scheduled day only and will not repeat
+            // timer will be for scheduled day only and will not repeat
             timer.date = calendar.selectedDate
+            
+            // append time of notification
+            timer.timeOfDay = startTimerminutehour.date
             
             // schedule the push notification for the mentioned day
             scheduleLocalDate(date: timer.date)
@@ -629,20 +611,18 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     @objc func repeatToggleTapped(_ sender: UISwitch) {
         if sender.isOn {
             // remove calendarview view and calendar
-            weekdayView.isHidden = false
-            calendarView.isHidden = true
-            setupWeeklyViewPicker()
+            weekDayView.isHidden = false
+            monthSelectionView.isHidden = true
+            setDurationViewConstraints(view: weekDayView)
         } else {
             // show weekday view
-            calendarView.isHidden = false
-            weekdayView.isHidden = true
-            setupDurationPickerForCalendarView()
+            monthSelectionView.isHidden = false
+            weekDayView.isHidden = true
+            setDurationViewConstraints(view: monthSelectionView)
         }
     }
     
     @objc func registerLocal() {
-        let center = UNUserNotificationCenter.current()
-        
         center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             if granted {
                 print("Granted")
@@ -655,46 +635,37 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     // regular repeat schedule notification
     @objc func scheduleLocal(weekday: Int) {
-        let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-        
         let content = UNMutableNotificationContent()
         content.title = "\(timer.title!)"
         content.body = "Focus time"
         content.categoryIdentifier = "alarm"
         content.sound = UNNotificationSound.default
         
-        // create a UUID so we can store it and modify it when needed
-        let notificationIdentifier = UUID().uuidString
-        
-        // initialise date components and set it to weekday so we can trigger notifications on specific days
+        // Create a date component
+        let date = startTimerminutehour.date
         var dateComponents = DateComponents()
+        
+        // Create a trigger for every Monday at the specified time
+        let weeklyTrigger = Calendar.current.dateComponents([.hour, .minute], from: date)
+        
+        // Update the hour and minute components as needed for your notification time
+        //dateComponents.hour = weeklyTrigger.hour
         dateComponents.weekday = weekday
-        dateComponents.minute = Int(timer.frequency)
+        dateComponents.hour = weeklyTrigger.hour
+        dateComponents.minute = weeklyTrigger.minute
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        // trigger to test below by running notification 5 seconds after triggering it
-        //let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        
+        // Create a unique identifier for the notification
+        let notificationIdentifier = UUID().uuidString
+        
         let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
-        
-        // add notification request to notification center otherwise you won't trigger notification
-        center.add(request)
         timer.notificationIdentifier.append(notificationIdentifier)
-
-        
+        center.add(request)
     }
-
+    
     // schedule a notification based on user selecting a future date
     @objc func scheduleLocalDate(date: Date) {
-//        var dateComp = DateComponents()
-//        dateComp.year = 2023
-//        dateComp.month = 9
-//        dateComp.day = 9
-//        let calendar = Calendar(identifier: .gregorian)
-//        let date = calendar.date(from: dateComp)
-//        print("\(Calendar.current.dateComponents([.day, .month, .year], from: date!))")
-        
-        let center = UNUserNotificationCenter.current()
         
         let content = UNMutableNotificationContent()
         content.title = "\(timer.title!)"
@@ -702,18 +673,48 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         content.categoryIdentifier = "alarm"
         content.sound = UNNotificationSound.default
         
+        // get the date from FScalendar that we implemented
+        var dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        
+        // get the hour and minute the user selected
+        let date2 = startTimerminutehour.date
+        var dateComponents2 = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date2)
+
+        // add the year month and day to our date component
+        dateComponents2.year = dateComponents.year
+        dateComponents2.month = dateComponents.month
+        dateComponents2.day = dateComponents.day
+        
         // create a UUID so we can store it and modify it when needed
         let notificationIdentifier = UUID().uuidString
         
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day], from: date)
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents2, repeats: false)
         
         let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
         
         center.add(request)
         timer.notificationIdentifier.append(notificationIdentifier)
-       //
     }
+    
+}
 
+
+// extension to hide keyboard on return key touch or when touched anywhere on screen
+extension UIViewController: UITextFieldDelegate {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+        
+    }
+    
+    // Return button tapped
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
 }

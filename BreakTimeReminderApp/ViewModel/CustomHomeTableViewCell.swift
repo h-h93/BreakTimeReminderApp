@@ -11,9 +11,9 @@ struct savedTimers: Codable {
     var title: String!
     var repeatDay: [String]!
     var date: Date!
+    var timeOfDay: Date!
     var notificationIdentifier: [String]!
     var timeDuration: TimeInterval!
-    var frequency: TimeInterval!
 }
 
 class CustomHomeTableViewCell: UITableViewCell {
@@ -161,6 +161,8 @@ class CustomHomeTableViewCell: UITableViewCell {
     }
     
     func set(result: savedTimers) {
+        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: result.timeOfDay!)
+        
         // Create string with attachment
         let attachmentString = NSAttributedString(attachment: imageAttachment)
         // Initialize mutable string
@@ -173,7 +175,7 @@ class CustomHomeTableViewCell: UITableViewCell {
         title.attributedText = completeText
         start.text = "Start"
         if let RepeatDay = result.repeatDay {
-            // declare a empty string first before loping and += to text to avoid null error
+            // declare a empty string first before looping and += to text to avoid null error
             repeatDayLabel.text = ""
             for i in RepeatDay {
                 repeatDayLabel.text! += " \(i)"
@@ -181,7 +183,7 @@ class CustomHomeTableViewCell: UITableViewCell {
         } else {
             repeatDayLabel.text = result.date.formatted(date: .abbreviated, time: .omitted)
         }
-
+        repeatDayLabel.text! += "  (\(dateComponents.hour!):\(dateComponents.minute!))"
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
