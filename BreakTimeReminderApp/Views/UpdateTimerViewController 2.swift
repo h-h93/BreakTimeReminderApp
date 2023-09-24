@@ -1,15 +1,14 @@
 //
-//  newTimerPopupView.swift
+//  UpdateTimerViewController.swift
 //  BreakTimeReminderApp
 //
-//  Created by hanif hussain on 28/08/2023.
+//  Created by hanif hussain on 07/09/2023.
 //
 
 import UIKit
 import FSCalendar
-import UserNotifications
 
-class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataSource, FSCalendarDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalendarDataSource, FSCalendarDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
     weak var delegate: HomeViewController!
     
@@ -84,7 +83,9 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }()
     
     // timer object
-    var timer = savedTimers()
+    var timerToUpdate: savedTimers!
+    
+    var position = Int()
     
     // hold our date and pass to timer if user selects a specific date
     var selectedDate: Date!
@@ -127,6 +128,21 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         repeatToggle.translatesAutoresizingMaskIntoConstraints = false
         repeatToggle.isOn = true
         return repeatToggle
+    }()
+    
+    let deleteButton: UIButton = {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Delete", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.layer.cornerRadius = button.frame.height / 2
+        button.backgroundColor = .white
+        button.backgroundColor = .white
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0.0, height: 6.0)
+        button.layer.shadowRadius = 8
+        button.layer.shadowOpacity = 0.5
+        return button
     }()
     
     let startTimerminutehour: UIDatePicker = {
@@ -194,6 +210,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         // hide keyboard using our custom extension created at bottom of this class
         self.hideKeyboardWhenTappedAround()
         nameTxtField.delegate = self
+        nameTxtField.text = timerToUpdate.title
         
         durationPicker.dataSource = self
         durationPicker.delegate = self
@@ -235,7 +252,6 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         
         // round the corners of our ui view
         view.layer.cornerRadius = 10
-
         
         
         repeatToggle.addTarget(self, action: #selector(repeatToggleTapped), for: .touchUpInside)
@@ -246,7 +262,10 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         // register for local notifications
         registerLocal()
         
-        timer.notificationIdentifier = [String]()
+        // assign tap register for delete button
+        deleteButton.addTarget(self, action: #selector(deleteTapped(sender: )), for: .touchUpInside)
+        
+        timerToUpdate.notificationIdentifier = [String]()
         
     }
     
@@ -265,7 +284,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        timer.timeDuration = Double(durationDataSource[row])
+        timerToUpdate.timeDuration = Double(durationDataSource[row])
     }
     
     func setupDayOfWeekButtons() {
@@ -324,6 +343,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         scrollView.addSubview(repeatToggle)
         scrollView.addSubview(weekDayView)
         scrollView.addSubview(durationView)
+        scrollView.addSubview(deleteButton)
         
         for i in dayOfWeekButtons {
             weekDayView.addSubview(i)
@@ -432,6 +452,11 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             startTimerminutehour.topAnchor.constraint(equalTo: frequencyLabel.topAnchor, constant: 0),
             startTimerminutehour.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant: 215),
             startTimerminutehour.trailingAnchor.constraint(equalTo: durationView.trailingAnchor, constant: -10),
+            
+            deleteButton.topAnchor.constraint(equalTo: frequencyLabel.topAnchor, constant: 80),
+            deleteButton.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 100),
+            deleteButton.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -100),
+            deleteButton.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -220)
         ]
         
         for i in DurationViewConstraint {
@@ -509,15 +534,25 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         }
     }
     
+    @objc func deleteTapped(sender: UIButton) {
+        // remove the pending notification for the timer
+        center.removePendingNotificationRequests(withIdentifiers: timerToUpdate.notificationIdentifier)
+        delegate.timers.remove(at: position)
+        dismiss(animated: true)
+        //delegate
+    }
     
     @objc func doneButtonTapped() {
         guard let nameText = nameTxtField.text, !nameText.isEmpty else { return }
         
-        if timer.timeDuration == nil {
-            timer.timeDuration = 5
+        // remove the pending notification for the updated timer before setting a new reminder
+        center.removePendingNotificationRequests(withIdentifiers: timerToUpdate.notificationIdentifier)
+        
+        if timerToUpdate.timeDuration == nil {
+            timerToUpdate.timeDuration = 5
         }
         
-        timer.title = nameText
+        timerToUpdate.title = nameText
         
         if repeatToggle.isOn {
             var dayCount = [Int]()
@@ -570,22 +605,21 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
                 }
             }
             // append the dayCount to timer array
-            timer.repeatDay = days
-            timer.timeOfDay = startTimerminutehour.date
-            delegate.timers.append(timer)
-            
+            timerToUpdate.repeatDay = days
+            timerToUpdate.timeOfDay = startTimerminutehour.date
+            delegate.updateTimer(timer: timerToUpdate, position: position)
         } else {
             // timer will be for scheduled day only and will not repeat
-            timer.date = calendar.selectedDate
+            timerToUpdate.date = calendar.selectedDate
             
             // append time of notification
-            timer.timeOfDay = startTimerminutehour.date
+            timerToUpdate.timeOfDay = startTimerminutehour.date
             
             // schedule the push notification for the mentioned day
-            scheduleLocalDate(date: timer.date)
+            scheduleLocalDate(date: timerToUpdate.date)
             
             // append new timer to homeViewcontroller timers array
-            delegate.timers.append(timer)
+            delegate.updateTimer(timer: timerToUpdate, position: position)
         }
         
         dismiss(animated: true)
@@ -624,6 +658,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }
     
     @objc func registerLocal() {
+        
         center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             if granted {
                 print("Granted")
@@ -636,8 +671,9 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     // regular repeat schedule notification
     @objc func scheduleLocal(weekday: Int) {
+        
         let content = UNMutableNotificationContent()
-        content.title = "\(timer.title!)"
+        content.title = "\(timerToUpdate.title!)"
         content.body = "Focus time"
         content.categoryIdentifier = "alarm"
         content.sound = UNNotificationSound.default
@@ -661,7 +697,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         let notificationIdentifier = UUID().uuidString
         
         let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
-        timer.notificationIdentifier.append(notificationIdentifier)
+        timerToUpdate.notificationIdentifier.append(notificationIdentifier)
         center.add(request)
     }
     
@@ -669,7 +705,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     @objc func scheduleLocalDate(date: Date) {
         
         let content = UNMutableNotificationContent()
-        content.title = "\(timer.title!)"
+        content.title = "\(timerToUpdate.title!)"
         content.body = "Focus time"
         content.categoryIdentifier = "alarm"
         content.sound = UNNotificationSound.default
@@ -694,28 +730,8 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
         
         center.add(request)
-        timer.notificationIdentifier.append(notificationIdentifier)
+        timerToUpdate.notificationIdentifier.append(notificationIdentifier)
     }
     
 }
 
-
-// extension to hide keyboard on return key touch or when touched anywhere on screen
-extension UIViewController: UITextFieldDelegate {
-    func hideKeyboardWhenTappedAround() {
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
-        
-    }
-    
-    // Return button tapped
-    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    @objc func dismissKeyboard() {
-        view.endEditing(true)
-    }
-}

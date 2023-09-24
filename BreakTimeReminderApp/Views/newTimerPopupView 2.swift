@@ -235,7 +235,6 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         
         // round the corners of our ui view
         view.layer.cornerRadius = 10
-
         
         
         repeatToggle.addTarget(self, action: #selector(repeatToggleTapped), for: .touchUpInside)
