@@ -8,6 +8,7 @@
 import UIKit
 
 struct savedTimers: Codable {
+    var uuid: String!
     var title: String!
     var repeatDay: [String]!
     var date: Date!

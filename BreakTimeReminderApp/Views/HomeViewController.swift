@@ -22,9 +22,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     var timers: [savedTimers] = []
     
+    var timersToDisplay: [savedTimers] = []
+    
     var selectedRow = Int()
     
     var calendarHeightConstraint: NSLayoutConstraint!
+    
+    var today = Date.now
     
     var showEmptyTimerView = false
     
@@ -67,14 +71,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         calendar.allowsMultipleSelection = false
         
-        
         calendar.appearance.weekdayTextColor = .magenta
         calendar.appearance.headerTitleColor = .magenta
         calendar.appearance.selectionColor = .blue
         calendar.appearance.todayColor = .systemGray3
         calendar.appearance.todaySelectionColor = .magenta
-        
-        
         return calendar
     }()
     
@@ -85,18 +86,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
-    
-    // create Calendar
-//    var calendarView: UICalendarView = {
-//        let calendarView = UICalendarView()
-//        calendarView.backgroundColor = .secondarySystemBackground
-//        calendarView.layer.cornerCurve = .continuous
-//        calendarView.layer.cornerRadius = 10
-//        calendarView.tintColor = .systemTeal
-//        calendarView.availableDateRange = DateInterval(start: .now, end: .distantFuture)
-//        calendarView.translatesAutoresizingMaskIntoConstraints = false
-//        return calendarView
-//    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,7 +97,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTimer))
         calendar.backgroundColor = .systemGray4
-
     }
     
     func setupTableView() {
@@ -156,6 +144,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // load user data
     func loadData() {
+        timersToDisplay.removeAll()
         // Retrieve from UserDefaults
         if let decodedData = UserDefaults.standard.data(forKey: "SavedTimers") {
             // have to read back as [savedTimers] as we are saving an array of timers
@@ -163,6 +152,18 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             timers = decodedArray ?? [savedTimers]()
         }
         
+        if !timers.isEmpty {
+            for i in timers {
+                if i.repeatDay != nil {
+                    timersToDisplay.append(i)
+                } else if i.date != nil {
+                    if Calendar.current.isDate(today, equalTo: i.date, toGranularity: .day) {
+                        timersToDisplay.append(i)
+                    }
+                }
+            }
+            tableView.reloadData()
+        }
     }
     
     // save user data
@@ -187,12 +188,12 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         if timers.isEmpty {
             return 1
         } else {
-            return timers.count
+            return timersToDisplay.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath) as! CustomHomeTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath) as! CustomHomeTableViewCell
         
         //disable cell selection highlight
         cell.selectionStyle = .none
@@ -209,10 +210,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cell.layer.cornerRadius = 15
 
         if !timers.isEmpty {
+
             // remove empty timerview from view
             emptyTimerView.removeFromSuperview()
 
-            cell.set(result: timers[indexPath.row])
+            cell.set(result: timersToDisplay[indexPath.row])
             
             // set showEmptyTimerView to false so we don't show the empty view again until we need to
             showEmptyTimerView = false
@@ -259,7 +261,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = CountDownViewController()
-        vc.savedtimer = timers[indexPath.row]
+        vc.savedtimer = timersToDisplay[indexPath.row]
         // display the new timer view as a popup view
         vc.modalTransitionStyle = .crossDissolve
         self.navigationController?.pushViewController(vc, animated: true)
@@ -271,7 +273,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             let updateTimerView = UpdateTimerViewController()
             updateTimerView.delegate = self
             selectedRow = sender.view!.tag
-            updateTimerView.timerToUpdate = timers[selectedRow]
+            updateTimerView.timerToUpdate = timersToDisplay[selectedRow]
             updateTimerView.position = selectedRow
             
             updateTimerView.modalPresentationStyle = .overCurrentContext
@@ -312,17 +314,12 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         for cell in calendar.calendarHeaderView.collectionView.visibleCells {
             (cell as! FSCalendarHeaderCell).titleLabel.text = dateFormatter.string(from: date)
         }
+        
+        today = date
+        loadData()
+        tableView.reloadData()
     }
-    
-    
-//    func calendar(_ calendar: FSCalendar?, boundingRectWillChange bounds: CGRect, animated: Bool) {
-//        calendar?.frame = CGRect(origin: calendar?.frame.origin ?? CGPoint.zero, size: bounds.size)
-//        // Do other updates here
-//        self.calendarHeightConstraint.constant = CGRectGetHeight(bounds);
-//        // Do other updates here
-//        [self.view layoutIfNeeded];
-//    }
-    
+
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         calendarHeightConstraint.constant = bounds.height
         self.view.layoutIfNeeded()
@@ -334,15 +331,39 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             calendar.reloadData()
     }
     
-    func updateTimer(timer: savedTimers, position: Int) {
+    func updateTimer(timer: savedTimers, position: Int, updateCalendarTimer: Bool) {
+        if updateCalendarTimer {
+            if Calendar.current.isDate(today, equalTo: timer.date, toGranularity: .day) {
+                timersToDisplay[position] = timer
+            } else {
+                timersToDisplay.remove(at: position)
+            }
+        } else {
+            timersToDisplay[position] = timer
+        }
+        
         // convert to json data to save
-        timers[position] = timer
+        for (index, indexTimer) in timers.enumerated() {
+            if indexTimer.uuid == timer.uuid {
+                timers[index] = timer
+            }
+        }
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(timers) {
             let defaults = UserDefaults.standard
             defaults.set(encoded, forKey: "SavedTimers")
         }
-        self.tableView.reloadData()
+        tableView.reloadData()
+    }
+    
+    func deleteTimer(timer: savedTimers, position: Int) {
+        for (index, indexTimer) in timers.enumerated() {
+            if indexTimer.uuid == timer.uuid {
+                timers.remove(at: index)
+            }
+        }
+        timersToDisplay.remove(at: position)
+        tableView.reloadData()
     }
     
 }

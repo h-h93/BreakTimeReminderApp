@@ -41,6 +41,9 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         return textfield
     }()
     
+    // create timers uinique id
+    let uuid = UUID().uuidString
+    
     // create a calendar view for when a user wishes to create a timer for specific date
     fileprivate var calendar: FSCalendar = {
         let calendar = FSCalendar()
@@ -236,7 +239,8 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         // round the corners of our ui view
         view.layer.cornerRadius = 10
 
-        
+        // assign unique ID to timer
+        timer.uuid = uuid
         
         repeatToggle.addTarget(self, action: #selector(repeatToggleTapped), for: .touchUpInside)
         
@@ -513,6 +517,8 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     @objc func doneButtonTapped() {
         guard let nameText = nameTxtField.text, !nameText.isEmpty else { return }
         
+        let today = Date.now
+        
         if timer.timeDuration == nil {
             timer.timeDuration = 5
         }
@@ -532,37 +538,37 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
                     case 0:
                         // append monday
                         dayCount.append(2)
-                        days.append("M")
+                        days.append("Mon")
                         scheduleLocal(weekday: 2)
                     case 1:
                         // append tuesday
                         dayCount.append(3)
-                        days.append("T")
+                        days.append("Tue")
                         scheduleLocal(weekday: 3)
                     case 2:
                         // append wednesday
                         dayCount.append(4)
-                        days.append("W")
+                        days.append("Wed")
                         scheduleLocal(weekday: 4)
                     case 3:
                         // append thursday
                         dayCount.append(5)
-                        days.append("T")
+                        days.append("Thu")
                         scheduleLocal(weekday: 5)
                     case 4:
                         // append friday
                         dayCount.append(6)
-                        days.append("F")
+                        days.append("Fri")
                         scheduleLocal(weekday: 6)
                     case 5:
                         // append saturday
                         dayCount.append(7)
-                        days.append("S")
+                        days.append("Sat")
                         scheduleLocal(weekday: 7)
                     case 6:
                         // append sunday
                         dayCount.append(1)
-                        days.append("S")
+                        days.append("Sun")
                         scheduleLocal(weekday: 1)
                     default:
                         break
@@ -573,6 +579,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             timer.repeatDay = days
             timer.timeOfDay = startTimerminutehour.date
             delegate.timers.append(timer)
+            delegate.timersToDisplay.append(timer)
             
         } else {
             // timer will be for scheduled day only and will not repeat
@@ -586,6 +593,12 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             
             // append new timer to homeViewcontroller timers array
             delegate.timers.append(timer)
+            
+            // append new timer to timers to display only if date == today's date
+            if Calendar.current.isDate(today, equalTo: timer.date, toGranularity: .day) {
+                delegate.timersToDisplay.append(timer)
+            }
+
         }
         
         dismiss(animated: true)
@@ -593,6 +606,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     override func viewWillDisappear(_ animated: Bool) {
         delegate.saveDate()
+        delegate.tableView.reloadData()
     }
     
     @objc func cancelButtonTapped() {

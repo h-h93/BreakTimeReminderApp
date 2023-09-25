@@ -537,13 +537,14 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
     @objc func deleteTapped(sender: UIButton) {
         // remove the pending notification for the timer
         center.removePendingNotificationRequests(withIdentifiers: timerToUpdate.notificationIdentifier)
-        delegate.timers.remove(at: position)
+        delegate.deleteTimer(timer: timerToUpdate, position: position)
         dismiss(animated: true)
-        //delegate
     }
     
     @objc func doneButtonTapped() {
         guard let nameText = nameTxtField.text, !nameText.isEmpty else { return }
+        
+        let today = Date.now
         
         // remove the pending notification for the updated timer before setting a new reminder
         center.removePendingNotificationRequests(withIdentifiers: timerToUpdate.notificationIdentifier)
@@ -607,7 +608,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
             // append the dayCount to timer array
             timerToUpdate.repeatDay = days
             timerToUpdate.timeOfDay = startTimerminutehour.date
-            delegate.updateTimer(timer: timerToUpdate, position: position)
+            delegate.updateTimer(timer: timerToUpdate, position: position, updateCalendarTimer: false)
         } else {
             // timer will be for scheduled day only and will not repeat
             timerToUpdate.date = calendar.selectedDate
@@ -619,7 +620,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
             scheduleLocalDate(date: timerToUpdate.date)
             
             // append new timer to homeViewcontroller timers array
-            delegate.updateTimer(timer: timerToUpdate, position: position)
+            delegate.updateTimer(timer: timerToUpdate, position: position, updateCalendarTimer: true)
         }
         
         dismiss(animated: true)
