@@ -25,10 +25,12 @@ class CountDownViewController: UIViewController {
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = button.frame.height / 2
         button.backgroundColor = .white
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOffset = CGSize(width: 0.0, height: 6.0)
-        button.layer.shadowRadius = 8
-        button.layer.shadowOpacity = 0.5
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.secondarySystemBackground.cgColor
+        button.layer.shadowColor = UIColor.label.cgColor
+        button.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
+        button.layer.shadowRadius = 6
+        button.layer.shadowOpacity = 1
         return button
     }()
     
@@ -38,21 +40,38 @@ class CountDownViewController: UIViewController {
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = button.frame.height / 2
         button.backgroundColor = .white
-        button.backgroundColor = .white
-        button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOffset = CGSize(width: 0.0, height: 6.0)
-        button.layer.shadowRadius = 8
-        button.layer.shadowOpacity = 0.5
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.secondarySystemBackground.cgColor
+        button.layer.shadowColor = UIColor.label.cgColor
+        button.layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
+        button.layer.shadowRadius = 6
+        button.layer.shadowOpacity = 1
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // implement observer notifications to check when app enters background
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+        // implement observer notifications to check when app enters foreground
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
+        drawButtons()
+        
+        // hide tab bar so user can't switch between tabs as they should focus on the timer
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        setupAnimations(timeRemaining: savedtimer.timeDuration * 60)
+    }
+    
+    func setupAnimations(timeRemaining: TimeInterval) {
         // convert minutes to seconds
-        timeLeft = savedtimer.timeDuration * 60
+        timeLeft = timeRemaining
         
-        view.backgroundColor = UIColor(white: 0.94, alpha: 1.0)
+        view.backgroundColor = .systemBackground //UIColor(white: 0.94, alpha: 1.0)
         drawBgShape()
         drawTimeLeftShape()
         addTimeLabel()
@@ -64,13 +83,11 @@ class CountDownViewController: UIViewController {
         timeLeftShapeLayer.add(strokeIt, forKey: nil)
         // define the future end time by adding the timeLeft to now Date()
         endTime = Date().addingTimeInterval(timeLeft)
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
         
+        // pause timer at the start to pause the animation until user clicks start
+        pauseTimer()
         
         drawButtons()
-        
-        // hide tab bar so user can't switch between tabs as they should focus on the timer
-        self.tabBarController?.tabBar.isHidden = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -88,7 +105,7 @@ class CountDownViewController: UIViewController {
     
     func drawBgShape() {
         bgShapeLayer.path = UIBezierPath(arcCenter: CGPoint(x: view.frame.midX , y: view.frame.midY), radius: 100, startAngle: deg2rad(-90), endAngle: deg2rad(270), clockwise: true).cgPath
-        bgShapeLayer.strokeColor = UIColor.white.cgColor
+        bgShapeLayer.strokeColor = UIColor.secondarySystemBackground.cgColor
         bgShapeLayer.fillColor = UIColor.clear.cgColor
         bgShapeLayer.lineWidth = 15
         view.layer.addSublayer(bgShapeLayer)
@@ -156,6 +173,27 @@ class CountDownViewController: UIViewController {
         }
     }
     
+    // stop and remove animation and label to reset animation
+    @objc func disableAnimations() {
+        pauseTimer()
+        timeLeftShapeLayer.removeAllAnimations()
+        bgShapeLayer.removeAllAnimations()
+        
+        timeLabel.removeFromSuperview()
+    }
+    
+    @objc func enableAnimations() {
+        setupAnimations(timeRemaining: timeLeft)
+        resumeTimer()
+    }
+    
+    @objc func appWillResignActive() {
+        disableAnimations()
+    }
+
+    @objc func appDidBecomeActive() {
+        enableAnimations()
+    }
     
 }
 

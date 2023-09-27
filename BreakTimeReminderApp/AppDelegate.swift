@@ -15,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         UNUserNotificationCenter.current().delegate = self
+        let notificationCenter = NotificationCenter.default
+            notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         return true
     }
 
@@ -36,6 +38,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert,.badge,.sound])
          
+    }
+    
+    @objc func appMovedToBackground() {
+        print("App moved to background!")
+        
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        for window in application.windows {
+            window.rootViewController?.beginAppearanceTransition(false, animated: false)
+            window.rootViewController?.endAppearanceTransition()
+            
+        }
+    }
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        for window in application.windows {
+            window.rootViewController?.beginAppearanceTransition(true, animated: false)
+            window.rootViewController?.endAppearanceTransition()
+        }
     }
 
 

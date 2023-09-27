@@ -33,7 +33,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     var nameTxtField: UITextField = {
         let textfield = UITextField()
-        textfield.placeholder = "Task Name"
+        textfield.attributedPlaceholder = NSAttributedString(string: "Enter Task Title", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
         textfield.backgroundColor = .white
         textfield.textColor = .black
         textfield.borderStyle = .roundedRect
@@ -98,9 +98,10 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     let center = UNUserNotificationCenter.current()
     
     var durationPicker: UIPickerView = {
-        let picker = UIPickerView()
+        let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         //picker.frame = CGRect(x: 0, y: 0, width: 50, height: 100)
         picker.backgroundColor = .white
+        picker.setValue(UIColor.black, forKey: "textColor")
         picker.layer.cornerRadius = 8
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
@@ -133,8 +134,9 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }()
     
     let startTimerminutehour: UIDatePicker = {
-        let datePicker = UIDatePicker(frame: CGRect(x: 0, y: 0, width: 150, height: 50))
+        let datePicker = UIDatePicker()
         datePicker.translatesAutoresizingMaskIntoConstraints = false
+        datePicker.overrideUserInterfaceStyle = .light
         datePicker.datePickerMode = .time
         datePicker.preferredDatePickerStyle = .compact
         datePicker.backgroundColor = .white
@@ -228,7 +230,6 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        
         // set nav title
         navigationItem.title = "Create"
         
@@ -270,6 +271,11 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         timer.timeDuration = Double(durationDataSource[row])
+    }
+    
+    // set picker text colour
+    func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        return NSAttributedString(string: durationDataSource[row], attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
     }
     
     func setupDayOfWeekButtons() {
@@ -417,7 +423,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             durationView.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
             durationView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40),
             durationView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -40),
-            durationView.heightAnchor.constraint(equalToConstant: 150),
+            durationView.heightAnchor.constraint(equalToConstant: 250),
             durationView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -300),
             
              //add constraints for timer picker and label
@@ -427,7 +433,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             durationPicker.topAnchor.constraint(equalTo: durationLabel.topAnchor, constant: 25),
             durationPicker.leadingAnchor.constraint(equalTo: durationView.leadingAnchor, constant: 10),
             durationPicker.trailingAnchor.constraint(equalTo: durationView.trailingAnchor, constant: -10),
-            durationPicker.heightAnchor.constraint(equalToConstant: 50),
+            durationPicker.heightAnchor.constraint(equalToConstant: 150),
             
             // add constraints for frequency picker and label
             frequencyLabel.topAnchor.constraint(equalTo: durationPicker.bottomAnchor, constant: 10),
@@ -605,7 +611,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        delegate.saveDate()
+        delegate.saveData()
         delegate.tableView.reloadData()
     }
     

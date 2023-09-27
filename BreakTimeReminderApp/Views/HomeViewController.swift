@@ -39,6 +39,13 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return emptyTimerView
     }()
     
+    var calendarView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .secondaryLabel
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     fileprivate var calendar: FSCalendar = {
         let calendar = FSCalendar()
         calendar.translatesAutoresizingMaskIntoConstraints = false
@@ -71,11 +78,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         calendar.allowsMultipleSelection = false
         
-        calendar.appearance.weekdayTextColor = .magenta
-        calendar.appearance.headerTitleColor = .magenta
-        calendar.appearance.selectionColor = .blue
-        calendar.appearance.todayColor = .systemGray3
-        calendar.appearance.todaySelectionColor = .magenta
+        calendar.appearance.weekdayTextColor = .white
+        calendar.appearance.headerTitleColor = .white
+        calendar.appearance.selectionColor = .magenta
+        calendar.appearance.todayColor = .red
+        calendar.appearance.todaySelectionColor = .red
         return calendar
     }()
     
@@ -89,6 +96,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .systemBackground
         
         loadData()
         
@@ -96,7 +104,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         setupTableView()
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTimer))
-        calendar.backgroundColor = .systemGray4
+        calendar.backgroundColor = .clear
     }
     
     func setupTableView() {
@@ -116,10 +124,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         NSLayoutConstraint.activate([
             // set constraints for tableView
-            tableView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
-            tableView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor)
+            tableView.topAnchor.constraint(equalTo: calendarView.bottomAnchor, constant: 10),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
     }
     
@@ -129,16 +137,22 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         calendar.delegate = self
         
         // set the frame height of our FSCalendar weekly view and activate the constraint
-        calendarHeightConstraint = calendar.heightAnchor.constraint(equalToConstant: 250)
+        calendarHeightConstraint = calendar.heightAnchor.constraint(equalToConstant: 300)
         calendarHeightConstraint?.isActive = true
         
-        view.addSubview(calendar)
-        
+        calendarView.addSubview(calendar)
+        view.addSubview(calendarView)
+    
         NSLayoutConstraint.activate([
-            calendar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            calendar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            calendar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
-        
+            
+            calendar.topAnchor.constraint(equalTo: calendarView.topAnchor, constant: 110),
+            calendar.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor),
+            calendar.trailingAnchor.constraint(equalTo: calendarView.trailingAnchor),
+            
+            calendarView.topAnchor.constraint(equalTo: view.topAnchor),
+            calendarView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            calendarView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            calendarView.heightAnchor.constraint(equalToConstant: 230),
         ])
     }
     
@@ -151,6 +165,8 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             let decodedArray = try? JSONDecoder().decode([savedTimers].self, from: decodedData)
             timers = decodedArray ?? [savedTimers]()
         }
+        
+        cleanupOldTimers()
         
         if !timers.isEmpty {
             for i in timers {
@@ -167,7 +183,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     // save user data
-    func saveDate() {
+    func saveData() {
         // convert to json data to save
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(timers) {
@@ -231,18 +247,19 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
             // customise label and emptyTimerView layout
             label.numberOfLines = 0
-            label.textColor = .black
+            label.textColor = .label
             label.font = UIFont(name: "ChalkDuster", size: 40)
             emptyTimerView.backgroundColor = .white
 
             // add label to empty timer view
             emptyTimerView.addSubview(label)
+            emptyTimerView.backgroundColor = .systemBackground
             // add empty timer view to main view
             view.addSubview(emptyTimerView)
 
             NSLayoutConstraint.activate([
                 // add constraints for the view
-                emptyTimerView.topAnchor.constraint(equalTo: calendar.bottomAnchor),
+                emptyTimerView.topAnchor.constraint(equalTo: calendarView.bottomAnchor),
                 emptyTimerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                 emptyTimerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                 emptyTimerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -364,6 +381,23 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         timersToDisplay.remove(at: position)
         tableView.reloadData()
+    }
+    
+    func cleanupOldTimers() {
+        let todayDate = Date.now.addingTimeInterval(-86400)
+        
+        if !timers.isEmpty {
+            for (index, timer) in timers.enumerated() {
+                if timer.date != nil {
+                    if timer.date < todayDate {
+                        timers.remove(at: index)
+                    }
+                }
+            }
+        }
+        
+        saveData()
+        
     }
     
 }

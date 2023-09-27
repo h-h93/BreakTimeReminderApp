@@ -19,11 +19,11 @@ class ViewController: UITabBarController {
         super.viewDidLoad()
         
         // set the background view to white
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         // customise tabBarView and Tab bar button colours
         self.tabBar.isTranslucent = false
-        tabBar.backgroundColor = .white
+        tabBar.backgroundColor = .systemBackground
         //tabBar.barTintColor = UIColor.red
         tabBar.tintColor = .magenta
         title = "Break Time!!!"

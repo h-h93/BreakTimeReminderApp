@@ -35,9 +35,9 @@ class CustomHomeTableViewCell: UITableViewCell {
         view.layer.masksToBounds = false
         
         // apply a shadow
-        view.layer.shadowRadius = 8.0
-        view.layer.shadowOpacity = 0.10
-        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowRadius = 9.0
+        view.layer.shadowOpacity = 1
+        view.layer.shadowColor = UIColor.secondaryLabel.cgColor
         view.layer.shadowOffset = CGSize(width: 0, height: 5)
         return view
     }()
