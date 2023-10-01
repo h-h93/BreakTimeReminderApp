@@ -583,9 +583,18 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
             }
             // append the dayCount to timer array
             timer.repeatDay = days
+            timer.weekDay = dayCount
+            // get current week day count 
+            let date = Calendar.current.component(.weekday, from: Date())
             timer.timeOfDay = startTimerminutehour.date
+            // check if new timer should be displayed immediatley for today
+            for i in dayCount {
+                if i == date {
+                    delegate.timersToDisplay.append(timer)
+                }
+            }
             delegate.timers.append(timer)
-            delegate.timersToDisplay.append(timer)
+            
             
         } else {
             // timer will be for scheduled day only and will not repeat

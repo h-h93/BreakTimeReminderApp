@@ -11,6 +11,7 @@ struct savedTimers: Codable {
     var uuid: String!
     var title: String!
     var repeatDay: [String]!
+    var weekDay: [Int]!
     var date: Date!
     var timeOfDay: Date!
     var notificationIdentifier: [String]!
@@ -47,6 +48,8 @@ class CustomHomeTableViewCell: UITableViewCell {
         title.adjustsFontSizeToFitWidth = true
         title.translatesAutoresizingMaskIntoConstraints = false
         title.font = UIFont.systemFont(ofSize: 20, weight: .thin)
+        title.lineBreakMode = NSLineBreakMode.byWordWrapping
+        title.numberOfLines = 0
         return title
     }()
     
@@ -85,7 +88,6 @@ class CustomHomeTableViewCell: UITableViewCell {
         
         // improve scrolling perfomance with an explicit ShadowPath
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 10).cgPath
-        
         addSubview(backgroundCard)
         addSubview(title)
         addSubview(start)
@@ -104,9 +106,9 @@ class CustomHomeTableViewCell: UITableViewCell {
     
     fileprivate func backgroundCardConstraints() {
         NSLayoutConstraint.activate([
-            backgroundCard.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            backgroundCard.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             backgroundCard.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            backgroundCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            backgroundCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
             backgroundCard.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
             
         ])
@@ -115,14 +117,15 @@ class CustomHomeTableViewCell: UITableViewCell {
     fileprivate func titleConstraints() {
         NSLayoutConstraint.activate([
             title.topAnchor.constraint(equalTo: backgroundCard.topAnchor, constant: 14),
-            title.heightAnchor.constraint(equalToConstant: 25),
-            title.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 20)
+            title.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 20),
+            title.heightAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            title.trailingAnchor.constraint(equalTo: backgroundCard.trailingAnchor, constant: -8)
         ])
     }
     
     fileprivate func repeatDayConstraints() {
         NSLayoutConstraint.activate([
-            repeatDayLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10),
+            repeatDayLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 45),
             repeatDayLabel.heightAnchor.constraint(equalToConstant: 25),
             repeatDayLabel.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 21)
         ])
@@ -130,9 +133,9 @@ class CustomHomeTableViewCell: UITableViewCell {
     
     fileprivate func startConstraints() {
         NSLayoutConstraint.activate([
-            start.topAnchor.constraint(equalTo: backgroundCard.topAnchor, constant: 50),
+            start.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 45),
             start.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: backgroundCard.leadingAnchor, multiplier: 1),
-            start.trailingAnchor.constraint(equalTo: backgroundCard.trailingAnchor, constant: -5)
+            start.trailingAnchor.constraint(equalTo: backgroundCard.trailingAnchor, constant: -8)
 
         ])
     }

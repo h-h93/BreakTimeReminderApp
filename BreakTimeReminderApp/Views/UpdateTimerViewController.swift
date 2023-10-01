@@ -86,6 +86,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
     // timer object
     var timerToUpdate: savedTimers!
     
+    // current position of selected timer in tableview[indexPath.row]
     var position = Int()
     
     // hold our date and pass to timer if user selects a specific date
@@ -614,8 +615,9 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
             }
             // append the dayCount to timer array
             timerToUpdate.repeatDay = days
+            timerToUpdate.weekDay = dayCount
             timerToUpdate.timeOfDay = startTimerminutehour.date
-            delegate.updateTimer(timer: timerToUpdate, position: position, updateCalendarTimer: false)
+            delegate.updateTimer(timer: &timerToUpdate, position: position, updateCalendarTimer: false)
         } else {
             // timer will be for scheduled day only and will not repeat
             timerToUpdate.date = calendar.selectedDate
@@ -627,7 +629,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
             scheduleLocalDate(date: timerToUpdate.date)
             
             // append new timer to homeViewcontroller timers array
-            delegate.updateTimer(timer: timerToUpdate, position: position, updateCalendarTimer: true)
+            delegate.updateTimer(timer: &timerToUpdate, position: position, updateCalendarTimer: true)
         }
         
         dismiss(animated: true)

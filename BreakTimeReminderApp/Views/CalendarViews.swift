@@ -1,4 +1,3 @@
-
 //newTimerPopupView.swift
 // BreakTimeReminderApp
 //

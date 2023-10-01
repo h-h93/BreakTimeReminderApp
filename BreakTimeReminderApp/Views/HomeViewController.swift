@@ -93,7 +93,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
-
+    
+    var weekday = Calendar.current.component(.weekday, from: Date())
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -137,15 +139,15 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         calendar.delegate = self
         
         // set the frame height of our FSCalendar weekly view and activate the constraint
-        calendarHeightConstraint = calendar.heightAnchor.constraint(equalToConstant: 300)
+        calendarHeightConstraint = calendar.heightAnchor.constraint(equalToConstant: 450)
         calendarHeightConstraint?.isActive = true
         
         calendarView.addSubview(calendar)
         view.addSubview(calendarView)
-    
+        
         NSLayoutConstraint.activate([
             
-            calendar.topAnchor.constraint(equalTo: calendarView.topAnchor, constant: 110),
+            calendar.topAnchor.constraint(equalTo: calendarView.topAnchor, constant: 80),
             calendar.leadingAnchor.constraint(equalTo: calendarView.leadingAnchor),
             calendar.trailingAnchor.constraint(equalTo: calendarView.trailingAnchor),
             
@@ -171,15 +173,20 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         if !timers.isEmpty {
             for i in timers {
                 if i.repeatDay != nil {
-                    timersToDisplay.append(i)
+                    for x in i.weekDay {
+                        if x == weekday {
+                            timersToDisplay.append(i)
+                        }
+                    }
                 } else if i.date != nil {
                     if Calendar.current.isDate(today, equalTo: i.date, toGranularity: .day) {
                         timersToDisplay.append(i)
                     }
                 }
             }
-            tableView.reloadData()
         }
+        print(timers)
+        tableView.reloadData()
     }
     
     // save user data
@@ -196,7 +203,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // set the height for each row in the tableview this will allow us to render our custom cell correctly
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+        return 150
     }
     
     
@@ -224,12 +231,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         cell.manageTimerImage.addGestureRecognizer(tapGesture)
         
         cell.layer.cornerRadius = 15
-
+        
+        let weekday = Calendar.current.component(.weekday, from: Date.now)
+        
         if !timers.isEmpty {
-
+            
             // remove empty timerview from view
             emptyTimerView.removeFromSuperview()
-
+            
             cell.set(result: timersToDisplay[indexPath.row])
             
             // set showEmptyTimerView to false so we don't show the empty view again until we need to
@@ -244,35 +253,34 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
             label.text = "Get started by creating a new timer by clicking the + icon at the top"
-
+            
             // customise label and emptyTimerView layout
             label.numberOfLines = 0
             label.textColor = .label
             label.font = UIFont(name: "ChalkDuster", size: 40)
             emptyTimerView.backgroundColor = .white
-
+            
             // add label to empty timer view
             emptyTimerView.addSubview(label)
             emptyTimerView.backgroundColor = .systemBackground
             // add empty timer view to main view
             view.addSubview(emptyTimerView)
-
+            
             NSLayoutConstraint.activate([
                 // add constraints for the view
                 emptyTimerView.topAnchor.constraint(equalTo: calendarView.bottomAnchor),
                 emptyTimerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
                 emptyTimerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
                 emptyTimerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+                
                 // add constraints for the label
                 label.topAnchor.constraint(equalTo: emptyTimerView.topAnchor),
                 label.leadingAnchor.constraint(equalTo: emptyTimerView.leadingAnchor, constant: 10),
                 label.trailingAnchor.constraint(equalTo: emptyTimerView.trailingAnchor, constant: -10),
                 label.bottomAnchor.constraint(equalTo: emptyTimerView.bottomAnchor)
-
+                
             ])
         }
-        
         return cell
     }
     
@@ -333,48 +341,53 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         
         today = date
+        weekday = Calendar.current.component(.weekday, from: date)
         loadData()
         tableView.reloadData()
     }
-
+    
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         calendarHeightConstraint.constant = bounds.height
         self.view.layoutIfNeeded()
         
-       }
-    
-    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-            calendar.calendarHeaderView.reloadData()
-            calendar.reloadData()
     }
     
-    func updateTimer(timer: savedTimers, position: Int, updateCalendarTimer: Bool) {
+    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+        calendar.calendarHeaderView.reloadData()
+        calendar.reloadData()
+    }
+    
+    func updateTimer(timer: inout savedTimers, position: Int, updateCalendarTimer: Bool) {
+        timersToDisplay.remove(at: position)
+       // print(timer)
+        weekday = Calendar.current.component(.weekday, from: Date())
         if updateCalendarTimer {
+            // set weekdat and repeat day to nil in case timer has been modified from a repeat to a calendar event
+            timer.weekDay = nil
+            timer.repeatDay = nil
             if Calendar.current.isDate(today, equalTo: timer.date, toGranularity: .day) {
-                timersToDisplay[position] = timer
-            } else {
-                timersToDisplay.remove(at: position)
+                timersToDisplay.insert(timer, at: position)
             }
         } else {
-            timersToDisplay[position] = timer
-        }
-        
-        // convert to json data to save
-        for (index, indexTimer) in timers.enumerated() {
-            if indexTimer.uuid == timer.uuid {
-                timers[index] = timer
+            for i in timer.weekDay {
+                if i == weekday {
+                    timersToDisplay.insert(timer, at: position)
+                }
             }
         }
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(timers) {
-            let defaults = UserDefaults.standard
-            defaults.set(encoded, forKey: "SavedTimers")
+        for (index, indexTimer) in self.timers.enumerated() {
+            // find the timer with the same UUID and update it
+            if indexTimer.uuid == timer.uuid {
+                self.timers[index] = timer
+            }
         }
+        saveData()
         tableView.reloadData()
     }
     
     func deleteTimer(timer: savedTimers, position: Int) {
         for (index, indexTimer) in timers.enumerated() {
+            // find the timer with the same UUID and remove it
             if indexTimer.uuid == timer.uuid {
                 timers.remove(at: index)
             }
@@ -395,9 +408,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 }
             }
         }
-        
         saveData()
-        
     }
     
 }
