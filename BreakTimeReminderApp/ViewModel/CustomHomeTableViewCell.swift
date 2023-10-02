@@ -79,6 +79,15 @@ class CustomHomeTableViewCell: UITableViewCell {
         return image
     }()
     
+    var manageTimerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.clipsToBounds = true
+        view.isUserInteractionEnabled = true
+        view.backgroundColor = .clear
+        return view
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -88,11 +97,13 @@ class CustomHomeTableViewCell: UITableViewCell {
         
         // improve scrolling perfomance with an explicit ShadowPath
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 10).cgPath
+        
         addSubview(backgroundCard)
         addSubview(title)
         addSubview(start)
         addSubview(repeatDayLabel)
-        addSubview(manageTimerImage)
+        manageTimerView.addSubview(manageTimerImage)
+        addSubview(manageTimerView)
         backgroundCardConstraints()
         titleConstraints()
         repeatDayConstraints()
@@ -107,8 +118,8 @@ class CustomHomeTableViewCell: UITableViewCell {
     fileprivate func backgroundCardConstraints() {
         NSLayoutConstraint.activate([
             backgroundCard.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            backgroundCard.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            backgroundCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            backgroundCard.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            backgroundCard.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             backgroundCard.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8)
             
         ])
@@ -143,9 +154,14 @@ class CustomHomeTableViewCell: UITableViewCell {
     
     fileprivate func manageTimerImageConstraints() {
         NSLayoutConstraint.activate([
-            manageTimerImage.topAnchor.constraint(equalTo: backgroundCard.topAnchor, constant: 14),
+            manageTimerImage.topAnchor.constraint(equalTo: manageTimerView.topAnchor, constant: 5),
             manageTimerImage.leadingAnchor.constraint(greaterThanOrEqualToSystemSpacingAfter: backgroundCard.leadingAnchor, multiplier: 1),
-            manageTimerImage.trailingAnchor.constraint(equalTo: backgroundCard.trailingAnchor, constant: -10),
+            manageTimerImage.trailingAnchor.constraint(equalTo: manageTimerView.trailingAnchor, constant: -5),
+            
+            manageTimerView.topAnchor.constraint(equalTo: backgroundCard.topAnchor, constant: 10),
+            manageTimerView.leadingAnchor.constraint(equalTo: backgroundCard.leadingAnchor, constant: 315),
+            manageTimerView.trailingAnchor.constraint(equalTo: backgroundCard.trailingAnchor, constant: -5),
+            manageTimerView.heightAnchor.constraint(equalToConstant: 50)
         
         ])
     }
@@ -165,7 +181,7 @@ class CustomHomeTableViewCell: UITableViewCell {
     }
     
     func set(result: savedTimers) {
-        var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: result.timeOfDay!)
+        let formattedTime = result.timeOfDay.formatted(date: .omitted, time: .shortened)
         
         // Create string with attachment
         let attachmentString = NSAttributedString(attachment: imageAttachment)
@@ -187,7 +203,7 @@ class CustomHomeTableViewCell: UITableViewCell {
         } else {
             repeatDayLabel.text = result.date.formatted(date: .abbreviated, time: .omitted)
         }
-        repeatDayLabel.text! += "  (\(dateComponents.hour!):\(dateComponents.minute!))"
+        repeatDayLabel.text! += "  (\(formattedTime))"
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

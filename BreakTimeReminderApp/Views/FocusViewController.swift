@@ -17,14 +17,22 @@ class FocusViewViewController: UIViewController {
     let shapeLayer = CAShapeLayer()
     
     // our timer duration
-    var timeLeft: TimeInterval = 30
+    var timeLeft: TimeInterval = 1500
     
     // here you create your basic animation object to animate the strokeEnd
     let basicAnimation = CABasicAnimation(keyPath: "strokeEnd")
     
     var updateLabelTimer = Timer()
 
-    var isTimerRunning = true
+    var isTimerRunning = true {
+        didSet {
+            if isTimerRunning == true {
+                pauseButton.setTitle("Pause", for: .normal)
+            } else {
+                pauseButton.setTitle("Reset", for: .normal)
+            }
+        }
+    }
     
     let pauseButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 50, y: 560, width: 100, height: 50))
@@ -114,7 +122,7 @@ class FocusViewViewController: UIViewController {
         restartTimer()
     }
     
-    func restartTimer() {
+    @objc func restartTimer() {
         timeLeft = 1500
         countDownTimer.invalidate()
         updateLabelTimer.invalidate()
@@ -138,7 +146,7 @@ class FocusViewViewController: UIViewController {
         basicAnimation.fillMode = .forwards
         basicAnimation.isRemovedOnCompletion = false
         
-        shapeLayer.add(basicAnimation, forKey: "urSoBasic")
+        shapeLayer.add(basicAnimation, forKey: "myAnimation")
     }
     
     @objc func updateTimer() {
@@ -147,7 +155,13 @@ class FocusViewViewController: UIViewController {
         } else {
             updateLabelTimer.invalidate()
             countDownTimer.invalidate()
-            restartTimer()
+            let ac = UIAlertController(title: "Timer Complete", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { UIAlertAction in
+                self.navigationController?.popToRootViewController(animated: true)
+                self.restartTimer()
+            }))
+            present(ac, animated: true)
+            
         }
         timeLabel.text = timeLeft.time
     }
@@ -160,12 +174,19 @@ class FocusViewViewController: UIViewController {
     }
     
     @objc func pauseTimer() {
-        updateLabelTimer.invalidate()
-        
-        let pausedTime : CFTimeInterval = shapeLayer.convertTime(CACurrentMediaTime(), from: nil)
-        shapeLayer.speed = 0
-        shapeLayer.timeOffset = pausedTime
-        isTimerRunning = false
+        if isTimerRunning == true {
+            updateLabelTimer.invalidate()
+            let pausedTime : CFTimeInterval = shapeLayer.convertTime(CACurrentMediaTime(), from: nil)
+            shapeLayer.speed = 0
+            shapeLayer.timeOffset = pausedTime
+            isTimerRunning = false
+        } else {
+            // restart timer if user hits the pause button after tapping it once already
+            isTimerRunning = true
+            updateLabelTimer.invalidate()
+            countDownTimer.invalidate()
+            restartTimer()
+        }
     }
     
     @objc func resumeTimer() {

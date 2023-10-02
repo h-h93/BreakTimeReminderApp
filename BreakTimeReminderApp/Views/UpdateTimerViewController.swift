@@ -57,10 +57,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
         
         // hide calendar bounds
         calendar.clipsToBounds = true
-        
-        // hide the red dot for the current day
-        calendar.today = nil;
-        
+
         // hide the next and previous month start of week in header
         calendar.appearance.headerMinimumDissolvedAlpha = 0.0;
         
@@ -75,7 +72,7 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
         calendar.appearance.weekdayTextColor = .magenta
         calendar.appearance.headerTitleColor = .magenta
         calendar.appearance.selectionColor = .blue
-        calendar.appearance.todaySelectionColor = .magenta
+        calendar.appearance.todayColor = .red
         calendar.backgroundColor = .clear
         // change the colour of the days in the calendar
         calendar.appearance.titleDefaultColor = .black
@@ -576,37 +573,37 @@ class UpdateTimerViewController: UIViewController, UIScrollViewDelegate, FSCalen
                     case 0:
                         // append monday
                         dayCount.append(2)
-                        days.append("M")
+                        days.append("Mon")
                         scheduleLocal(weekday: 2)
                     case 1:
                         // append tuesday
                         dayCount.append(3)
-                        days.append("T")
+                        days.append("Tue")
                         scheduleLocal(weekday: 3)
                     case 2:
                         // append wednesday
                         dayCount.append(4)
-                        days.append("W")
+                        days.append("Wed")
                         scheduleLocal(weekday: 4)
                     case 3:
                         // append thursday
                         dayCount.append(5)
-                        days.append("T")
+                        days.append("Thu")
                         scheduleLocal(weekday: 5)
                     case 4:
                         // append friday
                         dayCount.append(6)
-                        days.append("F")
+                        days.append("Fri")
                         scheduleLocal(weekday: 6)
                     case 5:
                         // append saturday
                         dayCount.append(7)
-                        days.append("S")
+                        days.append("Sat")
                         scheduleLocal(weekday: 7)
                     case 6:
                         // append sunday
                         dayCount.append(1)
-                        days.append("S")
+                        days.append("Sun")
                         scheduleLocal(weekday: 1)
                     default:
                         break

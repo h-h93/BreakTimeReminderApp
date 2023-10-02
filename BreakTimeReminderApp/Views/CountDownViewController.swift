@@ -23,7 +23,15 @@ class CountDownViewController: UIViewController {
     
     var updateLabelTimer = Timer()
 
-    var isTimerRunning = true
+    var isTimerRunning = true {
+        didSet {
+            if isTimerRunning == true {
+                pauseButton.setTitle("Pause", for: .normal)
+            } else {
+                pauseButton.setTitle("Reset", for: .normal)
+            }
+        }
+    }
     
     let pauseButton: UIButton = {
         let button = UIButton(frame: CGRect(x: 50, y: 560, width: 100, height: 50))
@@ -133,7 +141,7 @@ class CountDownViewController: UIViewController {
         basicAnimation.fillMode = .forwards
         basicAnimation.isRemovedOnCompletion = false
         
-        shapeLayer.add(basicAnimation, forKey: "urSoBasic")
+        shapeLayer.add(basicAnimation, forKey: "myAnimation")
     }
     
     @objc func updateTimer() {
@@ -142,7 +150,13 @@ class CountDownViewController: UIViewController {
         } else {
             updateLabelTimer.invalidate()
             countDownTimer.invalidate()
-            
+            pauseButton.isEnabled = false
+            resumeButton.isEnabled = false
+            let ac = UIAlertController(title: "Timer Complete", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { UIAlertAction in
+                self.navigationController?.popToRootViewController(animated: true)
+            }))
+            present(ac, animated: true)
         }
         timeLabel.text = timeLeft.time
     }
@@ -154,13 +168,34 @@ class CountDownViewController: UIViewController {
         resumeButton.addTarget(self, action: #selector(resumeTimer), for: .touchUpInside)
     }
     
-    @objc func pauseTimer() {
+    @objc func restartTimer() {
+        timeLeft = savedtimer.timeDuration * 60
+        countDownTimer.invalidate()
         updateLabelTimer.invalidate()
+        timeLabel.text = timeLeft.time
         
-        let pausedTime : CFTimeInterval = shapeLayer.convertTime(CACurrentMediaTime(), from: nil)
-        shapeLayer.speed = 0
-        shapeLayer.timeOffset = pausedTime
-        isTimerRunning = false
+        updateLabelTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+        updateLabelTimer.tolerance = 0.01
+        
+        countDownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(startAnimation), userInfo: nil, repeats: false)
+        
+        pauseTimer()
+    }
+    
+    @objc func pauseTimer() {
+        if isTimerRunning == true {
+            updateLabelTimer.invalidate()
+            let pausedTime : CFTimeInterval = shapeLayer.convertTime(CACurrentMediaTime(), from: nil)
+            shapeLayer.speed = 0
+            shapeLayer.timeOffset = pausedTime
+            isTimerRunning = false
+        } else {
+            // restart timer if user hits the pause button after tapping it once already
+            isTimerRunning = true
+            updateLabelTimer.invalidate()
+            countDownTimer.invalidate()
+            restartTimer()
+        }
     }
     
     @objc func resumeTimer() {

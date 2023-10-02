@@ -20,16 +20,21 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     // Set bound to reposition for imageAttachment
     let imageOffsetY: CGFloat = -5.0
     
+    // all our timers
     var timers: [savedTimers] = []
     
+    // filetered timers we want to display these depend on which day it is
     var timersToDisplay: [savedTimers] = []
     
+    // which row was selected in the table
     var selectedRow = Int()
     
     var calendarHeightConstraint: NSLayoutConstraint!
     
+    // keep track of todays date
     var today = Date.now
     
+    // flag to show empty timer view if all timers are deleted or new install
     var showEmptyTimerView = false
     
     var emptyTimerView: UIView = {
@@ -94,6 +99,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         return tv
     }()
     
+    // get and track weekday so we can filter our timers
     var weekday = Calendar.current.component(.weekday, from: Date())
     
     override func viewDidLoad() {
@@ -160,6 +166,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // load user data
     func loadData() {
+        // remove all timersToDisplay timers so we can repopulate
         timersToDisplay.removeAll()
         // Retrieve from UserDefaults
         if let decodedData = UserDefaults.standard.data(forKey: "SavedTimers") {
@@ -168,8 +175,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
             timers = decodedArray ?? [savedTimers]()
         }
         
+        // remove all out of date timers
         cleanupOldTimers()
-        
+        // filter timers and append to timersToDisplay based on weekday or date
         if !timers.isEmpty {
             for i in timers {
                 if i.repeatDay != nil {
@@ -185,7 +193,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                 }
             }
         }
-        print(timers)
         tableView.reloadData()
     }
     
@@ -225,10 +232,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped(sender:)))
         
         // add a tag to track which image was selected
-        cell.manageTimerImage.tag = indexPath.row
+        cell.manageTimerView.tag = indexPath.row
         
-        // add the recogniser to our manage image timer
-        cell.manageTimerImage.addGestureRecognizer(tapGesture)
+        // add the recogniser to our manage image timer view
+        cell.manageTimerView.addGestureRecognizer(tapGesture)
         
         cell.layer.cornerRadius = 15
         
@@ -294,7 +301,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     @objc func imageTapped(sender: UITapGestureRecognizer) {
-        if let imageView = sender.view as? UIImageView {
+        if sender.view is UIView {
             let updateTimerView = UpdateTimerViewController()
             updateTimerView.delegate = self
             selectedRow = sender.view!.tag
@@ -339,9 +346,11 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         for cell in calendar.calendarHeaderView.collectionView.visibleCells {
             (cell as! FSCalendarHeaderCell).titleLabel.text = dateFormatter.string(from: date)
         }
-        
+        // update the date based on the calendar date selection
         today = date
+        // grab the weekday from the date selected so we can also show repeat timers
         weekday = Calendar.current.component(.weekday, from: date)
+        // repopulate and display timers for selected date and weekday
         loadData()
         tableView.reloadData()
     }
@@ -358,11 +367,12 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     func updateTimer(timer: inout savedTimers, position: Int, updateCalendarTimer: Bool) {
+        // remove the timer so we can insert our updated timer
         timersToDisplay.remove(at: position)
        // print(timer)
         weekday = Calendar.current.component(.weekday, from: Date())
         if updateCalendarTimer {
-            // set weekdat and repeat day to nil in case timer has been modified from a repeat to a calendar event
+            // set weekday and repeatDay to nil in case timer has been modified from a repeat to a calendar event
             timer.weekDay = nil
             timer.repeatDay = nil
             if Calendar.current.isDate(today, equalTo: timer.date, toGranularity: .day) {
@@ -398,7 +408,6 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     func cleanupOldTimers() {
         let todayDate = Date.now.addingTimeInterval(-86400)
-        
         if !timers.isEmpty {
             for (index, timer) in timers.enumerated() {
                 if timer.date != nil {
@@ -410,5 +419,4 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         saveData()
     }
-    
 }

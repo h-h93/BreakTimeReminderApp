@@ -60,10 +60,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         
         // hide calendar bounds
         calendar.clipsToBounds = true
-        
-        // hide the red dot for the current day
-        calendar.today = nil;
-        
+   
         // hide the next and previous month start of week in header
         calendar.appearance.headerMinimumDissolvedAlpha = 0.0;
         
@@ -78,7 +75,7 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
         calendar.appearance.weekdayTextColor = .magenta
         calendar.appearance.headerTitleColor = .magenta
         calendar.appearance.selectionColor = .blue
-        calendar.appearance.todaySelectionColor = .magenta
+        calendar.appearance.todayColor = .red
         calendar.backgroundColor = .clear
         // change the colour of the days in the calendar
         calendar.appearance.titleDefaultColor = .black
@@ -276,6 +273,21 @@ class newTimerPopupView: UIViewController, UIScrollViewDelegate, FSCalendarDataS
     // set picker text colour
     func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
         return NSAttributedString(string: durationDataSource[row], attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
+    }
+    
+    // Use this if you have a UITextField
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // get the current text, or use an empty string if that failed
+        let currentText = textField.text ?? ""
+
+        // attempt to read the range they are trying to change, or exit if we can't
+        guard let stringRange = Range(range, in: currentText) else { return false }
+
+        // add their new text to the existing text
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+
+        // make sure the result is under 60 characters
+        return updatedText.count <= 60
     }
     
     func setupDayOfWeekButtons() {
